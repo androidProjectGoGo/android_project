@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "236835615651",
+    "project_id": "android-2a4bd",
+    "storage_bucket": "android-2a4bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236835615651:android:aceb0ba387d8f6e779a016",
+        "android_client_info": {
+          "package_name": "com.seoyeonJangJangman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSDWvKrtPfjVOC3Xr1xvs5jZdrVjGdl6A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
