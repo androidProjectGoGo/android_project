@@ -16,12 +16,7 @@ import com.google.firebase.ktx.Firebase
 
 class SigninActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-    private lateinit var email : String
-    private lateinit var id : String //메인으로 id 건네주기 용
-    private lateinit var pw : String
-    private lateinit var signinBtn : Button
     private lateinit var goSignupTextView: TextView
-    val db = Firebase.firestore
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.signin)
@@ -36,13 +31,15 @@ class SigninActivity : AppCompatActivity() {
         //firebase
         auth = Firebase.auth
 
-        //변수 선언
-        email = findViewById<EditText>(R.id.email).toString()
-        pw = findViewById<EditText>(R.id.pw).toString()
-        signinBtn = findViewById<Button>(R.id.signinBtn)
-
-
+        var signinBtn = findViewById<Button>(R.id.signinBtn)
         signinBtn.setOnClickListener{
+            val db = Firebase.firestore
+            //firebase
+            auth = Firebase.auth
+            //변수 선언
+            var email = findViewById<EditText>(R.id.email).text.toString()
+            var pw = findViewById<EditText>(R.id.pw).text.toString()
+            var signinBtn = findViewById<Button>(R.id.signinBtn)
             auth.signInWithEmailAndPassword(email, pw)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
@@ -51,38 +48,15 @@ class SigninActivity : AppCompatActivity() {
                         val user = auth.currentUser
 
                         //id 전달
-                        val docRef = db.collection("user").document(email)
-                        // 문서의 필드 가져오기
-                        docRef.get()
-                            .addOnSuccessListener { documentSnapshot ->
-                                if (documentSnapshot.exists()) {
-                                    // 문서가 존재하는 경우
-                                    val data = documentSnapshot.data
-                                    if (data != null) {
-                                        // 필드 이름으로부터 필드 값을 가져오기
-                                        id = data["userID"].toString()
-                                        if (id != null) {
-                                            // fieldValue 사용 예시
-                                            println("field_name: $id")
-                                        }
-                                    }
-                                } else {
-                                    // 문서가 존재하지 않는 경우
-                                    println("문서가 존재하지 않습니다.")
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                // 문서를 가져오는 중에 오류 발생
-                                println("문서 가져오기 실패: $e")
-                            }
+                        if (user != null) {
+                            val intent = Intent(this, PostActivity::class.java)
+                            startActivity(intent)
+                        } else {
+                        }
+
+
 //                        updateUI(user)
 
-                        //화면전환
-                        val intent = Intent(this, PostActivity::class.java)
-                        intent.putExtra("userID",id)
-                        if(id !=null) {
-                            startActivity(intent)
-                        }
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.exception)
