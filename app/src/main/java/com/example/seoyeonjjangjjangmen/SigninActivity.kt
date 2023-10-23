@@ -34,7 +34,6 @@ class SigninActivity : AppCompatActivity() {
         var signinBtn = findViewById<Button>(R.id.signinBtn)
         signinBtn.setOnClickListener{
             val db = Firebase.firestore
-            //firebase
             auth = Firebase.auth
             //변수 선언
             var email = findViewById<EditText>(R.id.email).text.toString()
@@ -47,7 +46,7 @@ class SigninActivity : AppCompatActivity() {
                         Log.d(TAG, "signInWithEmail:success")
                         val user = auth.currentUser
 
-                        //id 전달
+                        //화면 전환
                         if (user != null) {
                             val intent = Intent(this, PostActivity::class.java)
                             startActivity(intent)
