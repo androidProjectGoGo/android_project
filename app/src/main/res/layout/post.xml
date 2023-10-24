@@ -59,6 +59,23 @@
 
     </LinearLayout>
 
+    <RadioGroup
+        android:id="@+id/isSellRadioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/isSell"
+            android:text="판매중"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/isNotSell"
+            android:text="판매 완료"/>
+    </RadioGroup>
+
     <Button
         android:id="@+id/postBtn"
         android:layout_width="wrap_content"

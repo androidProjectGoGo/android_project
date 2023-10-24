@@ -3,10 +3,15 @@ package com.example.seoyeonjjangjjangmen
 import android.content.ContentValues
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -34,9 +39,10 @@ class PostActivity : AppCompatActivity() {
             }
         })
 
-        var isNew = true
+        var isNew = true //Changepoint
         //새 글 작성
-        if (isNew == false) {
+        if (isNew == true) {
+            findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.INVISIBLE
             val db = Firebase.firestore
             val auth = Firebase.auth
             val user = auth.currentUser
@@ -69,7 +75,7 @@ class PostActivity : AppCompatActivity() {
 
                     val postData = hashMapOf(
                         "title" to title,
-                        "isSell" to false,
+                        "isSell" to true,
                         "price" to price,
                         "userID" to userID,
                         "content" to content,
@@ -82,11 +88,12 @@ class PostActivity : AppCompatActivity() {
                         .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully written!") }
                         .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
 
-                    // Firestore에서 현재 배열 가져오기
+                    // 문서 가져오기
                     db.collection("userPostList").document(userID)
                         .get()
                         .addOnSuccessListener { documentSnapshot ->
                             if (documentSnapshot.exists()) {
+                                // 문서가 이미 존재하는 경우
                                 val data = documentSnapshot.data
                                 if (data != null) {
                                     // 현재 배열 가져오기
@@ -103,14 +110,25 @@ class PostActivity : AppCompatActivity() {
 
                                     db.collection("userPostList").document(userID)
                                         .set(userPostListData)
-                                        .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully written!") }
+                                        .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
                                         .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
                                 }
+                            } else {
+                                // 문서가 존재하지 않는 경우, 문서를 생성하고 새로운 데이터를 배열로 설정
+                                val userPostListData = hashMapOf(
+                                    "postIDs" to listOf(postID)
+                                )
+
+                                db.collection("userPostList").document(userID)
+                                    .set(userPostListData)
+                                    .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
+                                    .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
                             }
                         }
                         .addOnFailureListener { e ->
                             println("문서 가져오기 실패: $e")
                         }
+
 
                 }
             }
@@ -118,13 +136,14 @@ class PostActivity : AppCompatActivity() {
 
         //수정
         else{
+            findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.VISIBLE
             postBtn.setText("수정하기")
             val db = Firebase.firestore
             val auth = Firebase.auth
 
             //글 데이터 불러오기
             //changePoint!! postID 가져오기
-            val postRef = db.collection("post").document("b57317dd-722b-478a-a482-3762da026abe")
+            val postRef = db.collection("post").document("7c461fb0-f8e2-41ab-b36b-757b86161740")
             postRef.get()
                 .addOnSuccessListener { documentSnapshot ->
                     if (documentSnapshot.exists()) {
@@ -139,6 +158,11 @@ class PostActivity : AppCompatActivity() {
 
                             findViewById<EditText>(R.id.title).setText(getTitle)
                             findViewById<EditText>(R.id.content).setText(getContent)
+                            if (getIsSell==false){
+                                findViewById<RadioButton>(R.id.isNotSell).isChecked = true
+                            }else{
+                                findViewById<RadioButton>(R.id.isSell).isChecked = true
+                            }
 
                             seekBar.progress = getPrice.toInt()
 
@@ -156,19 +180,23 @@ class PostActivity : AppCompatActivity() {
             postBtn.setOnClickListener{
                 val title = findViewById<EditText>(R.id.title).text.toString()
                 val content = findViewById<EditText>(R.id.content).text.toString()
-
                 val price = seekBar.progress// 여기에서 price 값을 설정 (예: seekBar.progress)
-
+                var isSellCheck = true
+                if(findViewById<RadioButton>(R.id.isNotSell).isChecked == true){
+                    isSellCheck = false
+                }else if(findViewById<RadioButton>(R.id.isSell).isChecked == true){
+                    isSellCheck = true
+                }
                 val updatedData = hashMapOf(
                     "title" to title,
-                    "isSell" to false,
+                    "isSell" to isSellCheck,
                     "price" to price,
                     "content" to content,
                     "imageURL" to "",
                 )
 
                 // Firestore에서 문서 가져오기
-                val postRef = db.collection("post").document("b57317dd-722b-478a-a482-3762da026abe")
+                val postRef = db.collection("post").document("7c461fb0-f8e2-41ab-b36b-757b86161740")
 
                 postRef.get()
                     .addOnSuccessListener { documentSnapshot ->
