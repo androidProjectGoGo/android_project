@@ -47,6 +47,7 @@ class SignupActivity: AppCompatActivity() {
             var id = findViewById<EditText>(R.id.id).text.toString()
             var pw = findViewById<EditText>(R.id.pw).text.toString()
             var check_pw = findViewById<EditText>(R.id.check_pw).text.toString()
+            var birth = findViewById<EditText>(R.id.birth).text.toString()
 
             //회원가입 조건 변수 선언
             var isEmail :Boolean
@@ -71,6 +72,7 @@ class SignupActivity: AppCompatActivity() {
                                 "email" to email,
                                 "pw" to pw,
                                 "uid" to uid,
+                                "birth" to birth,
                                 )
                             val userTokenInfo = hashMapOf(
                                 "userID" to id,
@@ -85,7 +87,7 @@ class SignupActivity: AppCompatActivity() {
                                         .set(userTokenInfo)
                                         .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully written!") }
                                         .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
-                                    val intent2 = Intent(this, SigninActivity::class.java)
+                                    val intent2 = Intent(this, PostActivity::class.java) //ChangePoint
                                     startActivity(intent2)
                                 }
                             }
