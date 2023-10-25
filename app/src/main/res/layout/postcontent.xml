@@ -1,85 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/content_iv"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        tools:srcCompat="@tools:sample/avatars"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/userid_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="판매자 이름"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@+id/content_iv"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="16dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="제목" />
-
-        <EditText
-            android:id="@+id/title"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="내용" />
-
-        <EditText
-            android:id="@+id/content"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="335dp"
-        android:layout_height="39dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="가격" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="171dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="60dp"
-            android:layout_marginEnd="60dp"
-            android:max="50"
-            android:progress="20" />
-
-    </LinearLayout>
-
-    <RadioGroup
-        android:id="@+id/isSellRadioGroup"
+        android:text="제목"
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@+id/userid_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="16dp"/>
+    <TextView
+        android:id="@+id/price_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/isSell"
-            android:text="판매중"/>
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/isNotSell"
-            android:text="판매 완료"/>
-    </RadioGroup>
+        android:text="가격"
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@+id/userid_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"/>
+
+    <TextView
+        android:id="@+id/content_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="내용"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/title_tv"
+        android:layout_margin="20dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="판매여부"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="20dp"/>
 
     <Button
         android:id="@+id/postBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="글 등록하기" />
+        android:text="채팅하기"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="20dp"/>
 
-</LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
