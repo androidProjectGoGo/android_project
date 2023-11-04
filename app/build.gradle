@@ -5,6 +5,12 @@ plugins {
 }
 
 android {
+
+    // ActivityMainBinding을 위해 추가
+    viewBinding {
+        enabled = true
+    }
+
     namespace 'com.example.seoyeonjjangjjangmen'
     compileSdk 34
 

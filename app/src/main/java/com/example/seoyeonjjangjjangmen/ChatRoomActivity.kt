@@ -1,5 +1,6 @@
 package com.example.seoyeonjjangjjangmen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -22,10 +23,12 @@ import com.google.firebase.firestore.auth.User
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
+import com.example.seoyeonjjangjjangmen.databinding.ChatRoomBinding
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 class ChatRoomActivity : AppCompatActivity() {
-    lateinit var binding: ActivityChatroomBinding
+    lateinit var binding: ChatRoomBinding // ??? 클래스 Missing ???
     lateinit var btn_exit: ImageButton
     lateinit var btn_submit: Button
     lateinit var txt_title: TextView
@@ -39,7 +42,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityChatroomBinding.inflate(layoutInflater)
+        binding = ChatRoomBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initializeProperty()
         initializeView()
@@ -56,13 +59,14 @@ class ChatRoomActivity : AppCompatActivity() {
         opponentUser = (intent.getSerializableExtra("Opponent")) as User    //상대방 유저 정보
     }
 
+    @SuppressLint("RestrictedApi")
     fun initializeView() {    //뷰 초기화
         btn_exit = binding.imgbtnQuit
         edt_message = binding.edtMessage
         recycler_talks = binding.recyclerMessages
         btn_submit = binding.btnSubmit
         txt_title = binding.txtTItle
-        txt_title.text = opponentUser!!.name ?: ""
+        txt_title.text = opponentUser!!.uid ?: "" // uid or name
     }
 
     fun initializeListener() {   //버튼 클릭 시 리스너 초기화
@@ -83,6 +87,7 @@ class ChatRoomActivity : AppCompatActivity() {
             setupRecycler()
     }
 
+    @SuppressLint("RestrictedApi")
     fun setupChatRoomKey() {            //chatRoomKey 없을 경우 초기화 후 목록 초기화
         FirebaseDatabase.getInstance().getReference("ChatRoom")
             .child("chatRooms").orderByChild("users/${opponentUser.uid}").equalTo(true)    //상대방의 Uid가 포함된 목록이 있는지 확인

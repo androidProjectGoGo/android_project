@@ -13,19 +13,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase // Firebase 클래스들을 import
-import com.example.seoyeonjjangjjangmen.addChatRoom.AddChatRoomActivity
-import com.example.seoyeonjjangjjangmen.databinding.ActivityMainBinding
-import com.example.seoyeonjjangjjangmen.model.ChatRoom
-
+import com.example.seoyeonjjangjjangmen.databinding.ChatListBinding
 @RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    lateinit var binding : ChatListBinding
     lateinit var firebaseDatabase: DatabaseReference
     lateinit var recycler_chatroom: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ChatListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initializeView()
         setupRecycler()
@@ -47,8 +44,4 @@ class MainActivity : AppCompatActivity() {
         recycler_chatroom.layoutManager = LinearLayoutManager(this)
         recycler_chatroom.adapter = RecyclerChatRoomsAdapter(this)
     }
-
-
-
-
 }

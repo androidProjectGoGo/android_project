@@ -7,11 +7,3 @@ data class ChatRoom(
     var messages: Map<String,Message>? = HashMap()
 ) : Serializable {
 }
-
-data class Message(
-    var senderUid: String = "",
-    var sended_date: String = "",
-    var content: String = "",
-    var confirmed:Boolean=false
-) : Serializable {
-}

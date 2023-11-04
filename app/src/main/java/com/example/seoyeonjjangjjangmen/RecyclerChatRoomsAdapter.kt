@@ -1,11 +1,11 @@
 package com.example.seoyeonjjangjjangmen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -58,8 +58,7 @@ class RecyclerChatRoomsAdapter(val context: Context) :
 
     // ViewHolder 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(context).inflate(R.layout.chatlist, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.chat_list, parent, false)
         return ViewHolder(ListChatroomItemBinding.bind(view))
     }
 
@@ -75,6 +74,7 @@ class RecyclerChatRoomsAdapter(val context: Context) :
             .equalTo(opponent)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {}
+                @SuppressLint("RestrictedApi")
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (data in snapshot.children) {
                         // 채팅방 키 초기화
@@ -82,7 +82,7 @@ class RecyclerChatRoomsAdapter(val context: Context) :
                         // 상대방 정보 초기화
                         holder.opponentUser = data.getValue<User>()!!
                         // 상대방 이름 초기화
-                        holder.txt_name.text = data.getValue<User>()!!.name.toString()
+                        holder.txt_name = data.getValue<User>()!!.toString()
                     }
                 }
             })
@@ -90,7 +90,7 @@ class RecyclerChatRoomsAdapter(val context: Context) :
         // 채팅방 항목 선택 시 이벤트 처리
         holder.background.setOnClickListener() {
             try {
-                var intent = Intent(context, ChatRoomActivity::class.java)
+                val intent = Intent(context, ChatRoomActivity::class.java)
                 // 채팅방 정보, 상대방 사용자 정보, 채팅방 키 정보를 인텐트에 추가
                 intent.putExtra("ChatRoom", chatRooms.get(position))
                 intent.putExtra("Opponent", holder.opponentUser)
@@ -100,11 +100,8 @@ class RecyclerChatRoomsAdapter(val context: Context) :
                 (context as AppCompatActivity).finish()
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(
-                    context,
-                    "채팅방 이동 중 문제가 발생하였습니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                System.out.println("채팅방 이동 중 문제가 발생함. At : RecyclerChatRoomsAdapter.onBindViewHolder")
+
             }
         }
 
@@ -116,22 +113,22 @@ class RecyclerChatRoomsAdapter(val context: Context) :
     }
 
     // 마지막 메시지 및 시각 초기화 및 표시하는 함수
-    private fun setupLastMessageAndDate(holder: ViewHolder, position: Int) {
+    fun setupLastMessageAndDate(holder: ViewHolder, position: Int) {
         try {
             var lastMessage =
                 chatRooms[position].messages!!.values.sortedWith(compareBy({ it.sended_date }))
                     .last()
             // 마지막 메시지 표시
-            holder.txt_message.text = lastMessage.content
+            holder.txt_message = lastMessage
             // 마지막으로 전송된 시각 표시
-            holder.txt_date.text = getLastMessageTimeString(lastMessage.sended_date)
+            holder.txt_date = getLastMessageTimeString(lastMessage.sended_date)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     // 확인되지 않은 메시지의 개수를 설정하고 화면에 표시하는 함수
-    private fun setupMessageCount(holder: ViewHolder, position: Int) {
+    fun setupMessageCount(holder: ViewHolder, position: Int) {
         try {
             // 확인되지 않은 메시지 중 확인되지 않은 상대방의 메시지 개수 가져오기
             var unconfirmedCount =
@@ -140,18 +137,18 @@ class RecyclerChatRoomsAdapter(val context: Context) :
                 }.size
             // 확인되지 않은 메시지가 있을 경우 개수 표시
             if (unconfirmedCount > 0) {
-                holder.txt_chatCount.visibility = View.VISIBLE
-                holder.txt_chatCount.text = unconfirmedCount.toString()
+                holder.txt_chatCount?.visibility = View.VISIBLE
+                holder.txt_chatCount?.text = unconfirmedCount.toString()
             } else
-                holder.txt_chatCount.visibility = View.GONE
+                holder.txt_chatCount?.visibility = View.GONE
         } catch (e: Exception) {
             e.printStackTrace()
-            holder.txt_chatCount.visibility = View.GONE
+            holder.txt_chatCount?.visibility = View.GONE
         }
     }
 
     // 마지막 메시지가 전송된 시각을 현재 시간과 비교하여 표시 형식으로 반환하는 함수
-    private fun getLastMessageTimeString(lastTimeString: String): String {
+    fun getLastMessageTimeString(lastTimeString: String): String {
         try {
             // 현재 시각
             var currentTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId())
@@ -210,7 +207,8 @@ class RecyclerChatRoomsAdapter(val context: Context) :
     // ViewHolder 클래스 정의
     inner class ViewHolder(itemView: ListChatroomItemBinding) :
         RecyclerView.ViewHolder(itemView.root) {
-        var opponentUser = User("", "")
+        @SuppressLint("RestrictedApi")
+        var opponentUser = User("")
         var chatRoomKey = ""
         var background = itemView.background
         var txt_name = itemView.txtName
