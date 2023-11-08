@@ -51,7 +51,7 @@ class PostContent : AppCompatActivity() {
                         useridTv.setText(getUserId)//판매자 이름
                         titleTv.setText(getTitle)//제목
                         contentTv.setText(getContent)//내용
-                        priceTv.setText((getPrice).toInt())//가격
+                        priceTv.setText(getPrice.toString())//가격
                         if (!getIsSell) {//판매여부
                             isSell.text = "판매완료"
                         } else {
