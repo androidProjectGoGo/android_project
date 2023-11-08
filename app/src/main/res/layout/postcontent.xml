@@ -18,7 +18,7 @@
         android:id="@+id/userid_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="판매자 이름"
+        android:text="판매자 ID"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@+id/content_iv"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,6 +53,7 @@
         android:layout_margin="20dp"/>
 
     <TextView
+        android:id="@+id/isSell_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="판매여부"

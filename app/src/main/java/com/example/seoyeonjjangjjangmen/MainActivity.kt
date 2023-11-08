@@ -42,6 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     fun setupRecycler() {
         recycler_chatroom.layoutManager = LinearLayoutManager(this)
-        recycler_chatroom.adapter = RecyclerChatRoomsAdapter(this)
+        //recycler_chatroom.adapter = RecyclerChatRoomsAdapter(this)
     }
 }
