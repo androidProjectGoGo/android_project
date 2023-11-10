@@ -22,6 +22,7 @@ class PostListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.postlist)
 
+
         auth = Firebase.auth
         val currentUser = auth.currentUser
 
