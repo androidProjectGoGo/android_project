@@ -46,12 +46,20 @@ class SigninActivity : AppCompatActivity() {
                         Log.d(TAG, "signInWithEmail:success")
                         val user = auth.currentUser
 
-                        //화면 전환
+                        //post 화면 전환
+//                        if (user != null) {
+//                            val intent = Intent(this, PostActivity::class.java)
+//                            startActivity(intent)
+//                        } else {
+//                        }
+
+                        //postlist 화면 전환
                         if (user != null) {
-                            val intent = Intent(this, PostActivity::class.java)
+                            val intent = Intent(this, PostListActivity::class.java)
                             startActivity(intent)
                         } else {
                         }
+
 
 
 //                        updateUI(user)
@@ -70,4 +78,4 @@ class SigninActivity : AppCompatActivity() {
         }
     }
 }
-//이서연 짱짱멘
+//이서연 짱짱멘//짜장면

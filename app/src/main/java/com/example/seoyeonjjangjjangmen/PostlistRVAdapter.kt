@@ -10,39 +10,50 @@ import com.example.seoyeonjjangjjangmen.databinding.ItemPostlistBinding
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 data class PostItem(
     val title: String,
     val price: Long,
     val isSell: Boolean,
-    val isMy: Boolean
+    val userID: String
 )
 
 
-class PostlistRVAdapter(val context: Context) : RecyclerView.Adapter<PostlistRVAdapter.ViewHolder>() {
+class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView.Adapter<PostlistRVAdapter.ViewHolder>() {
     private val postItems: MutableList<PostItem> = mutableListOf()
-    private val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("your_database_path")
+    val db = Firebase.firestore
+    private val postsCollection = db.collection("post")
+
+    private var onItemClickListener: ((PostItem)-> Unit)?= null
+
 
     init {
         // 데이터를 가져오기
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        postsCollection.get()
+            .addOnSuccessListener { querySnapshot ->
                 postItems.clear()
-                for (postSnapshot in dataSnapshot.children) {
-                    val title = postSnapshot.child("title").getValue(String::class.java) ?: ""
-                    val price = postSnapshot.child("price").getValue(Long::class.java) ?: 0
-                    val isSell = postSnapshot.child("isSell").getValue(Boolean::class.java) ?: false
-                    val isMy = postSnapshot.child("isMy").getValue(Boolean::class.java) ?: false
-                    val postItem = PostItem(title, price, isSell, isMy)
+                for (document in querySnapshot.documents) {
+                    // Firestore 문서에서 필요한 데이터 추출
+                    val title = document.getString("title") ?: ""
+                    val price = document.getLong("price") ?: 0
+                    val isSell = document.getBoolean("isSell") ?: false
+                    //val postID = postSnapshot.child("postID").getValue(String::class.java) ?: ""
+
+                    // PostItem 객체 생성 및 리스트에 추가
+                    val postItem = PostItem(title, price, isSell, userID)
                     postItems.add(postItem)
                 }
                 notifyDataSetChanged()
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {// 데이터 가져오기 실패 시 처리
-                println("문서 가져오기 실패: $databaseError")
+            .addOnFailureListener { e ->
+                Log.e("PostlistRVAdapter", "데이터 가져오기 실패: $e")
             }
-        })
+    }
+
+    fun setOnItemClickListener(listener: (PostItem)-> Unit){
+        this.onItemClickListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -53,10 +64,16 @@ class PostlistRVAdapter(val context: Context) : RecyclerView.Adapter<PostlistRVA
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val postItem = postItems[position]
         holder.bind(postItem)
+
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.invoke(postItem)
+        }
     }
 
     override fun getItemCount(): Int {
-        return postItems.size
+        val itemCount = postItems.size
+        Log.d("PostlistRVAdapter", "getItemCount: $itemCount")
+        return itemCount
     }
 
     inner class ViewHolder(private val binding: ItemPostlistBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -64,7 +81,7 @@ class PostlistRVAdapter(val context: Context) : RecyclerView.Adapter<PostlistRVA
             binding.itemTitle.text = postItem.title
             binding.itemPrice.text = postItem.price.toString()
             binding.itemIsSellTag.text = if (postItem.isSell) "판매중" else "판매완료"
-            binding.itemMyPostTag.text = if (postItem.isMy) "내 글" else ""
+            //binding.itemMyPostTag.text = if (postItem.isMine) "내 글" else ""
             // 이미지 로딩 코드를 추가.. imageURL을 이미지뷰에 설정하기
         }
     }
