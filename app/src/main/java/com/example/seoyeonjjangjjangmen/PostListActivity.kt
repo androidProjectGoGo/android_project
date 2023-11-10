@@ -35,9 +35,15 @@ class PostListActivity : AppCompatActivity() {
             adapter = PostlistRVAdapter(this, userID)
             recyclerViewItems.adapter = adapter
 
-            adapter?.setOnItemClickListener { postItem ->
-                // 클릭된 아이템의 정보를 다음 화면으로 전달
+
+            adapter?.setOnItemClickListener { postItem ->//PostContent로 전환
+                // 클릭된 post의 정보를 PostContent로 전달
                 val intent = Intent(this, PostContent::class.java)
+                intent.putExtra("title", postItem.title)
+                intent.putExtra("isSell", postItem.isSell)
+                intent.putExtra("price", postItem.price)
+                //intent.putExtra("content", postItem.content)
+                //intent.putExtra("imageURL", postItem.imageURL)
                 intent.putExtra("userID", postItem.userID) // postId를 전달하거나 다른 필요한 정보 전달
                 startActivity(intent)
             }

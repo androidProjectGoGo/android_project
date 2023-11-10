@@ -17,7 +17,8 @@ data class PostItem(
     val title: String,
     val price: Long,
     val isSell: Boolean,
-    val userID: String
+    val userID: String,
+    val postID: String
 )
 
 
@@ -39,10 +40,10 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
                     val title = document.getString("title") ?: ""
                     val price = document.getLong("price") ?: 0
                     val isSell = document.getBoolean("isSell") ?: false
-                    //val postID = postSnapshot.child("postID").getValue(String::class.java) ?: ""
+                    val postID = document.getString("postIDs") ?: ""
 
                     // PostItem 객체 생성 및 리스트에 추가
-                    val postItem = PostItem(title, price, isSell, userID)
+                    val postItem = PostItem(title, price, isSell, userID, postID)
                     postItems.add(postItem)
                 }
                 notifyDataSetChanged()
@@ -81,7 +82,7 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
             binding.itemTitle.text = postItem.title
             binding.itemPrice.text = postItem.price.toString()
             binding.itemIsSellTag.text = if (postItem.isSell) "판매중" else "판매완료"
-            //binding.itemMyPostTag.text = if (postItem.isMine) "내 글" else ""
+            //binding.itemMyPostTag.text = if (postItem.postID) "내 글" else ""
             // 이미지 로딩 코드를 추가.. imageURL을 이미지뷰에 설정하기
         }
     }

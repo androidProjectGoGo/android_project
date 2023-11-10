@@ -31,43 +31,27 @@ class PostContent : AppCompatActivity() {
         val isSell = findViewById<TextView>(R.id.isSell_tv)
         val chatBtn = findViewById<Button>(R.id.postBtn)
         val useridTv = findViewById<TextView>(R.id.userid_tv)
+        
+        //userID 받기
+        val userID = intent.getStringExtra("userID")
+        val title = intent.getStringExtra("title")
+        val isSellValue = intent.getBooleanExtra("isSell", false)
+        val price = intent.getLongExtra("price", 0)
+        val content = intent.getStringExtra("content")
+        val imageURL = intent.getStringExtra("imageURL")
+        Log.d("userID", "$userID")
 
+        if (userID != null) {
+            useridTv.text = userID
+            titleTv.text = title
+            contentTv.text = content
+            priceTv.text = price.toString()
+            isSell.text = if (isSellValue) "판매중" else "판매완료"
+        }
 
-        //글 데이터 불러오기
-        val postRef = db.collection("post").document("7c461fb0-f8e2-41ab-b36b-757b86161740")
-        postRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    // 문서가 존재하는 경우
-                    val data = documentSnapshot.data
-                    if (data != null) {
-                        val getTitle = data["title"] as String
-                        val getIsSell = data["isSell"] as Boolean
-                        val getPrice = data["price"] as Long
-                        val getContent = data["content"] as String
-                        val getImageURL = data["imageURL"] as String
-                        val getUserId = data["userID"] as String
-
-                        useridTv.setText(getUserId)//판매자 이름
-                        titleTv.setText(getTitle)//제목
-                        contentTv.setText(getContent)//내용
-                        priceTv.setText(getPrice.toString())//가격
-                        if (!getIsSell) {//판매여부
-                            isSell.text = "판매완료"
-                        } else {
-                            isSell.text = "판매중"
-                        }
-                        
-                    }
-                } else {
-                    // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
-                    Log.d(ContentValues.TAG, "Document does not exist.")
-                }
-            }
-            .addOnFailureListener { e ->
-                println("문서 가져오기 실패: $e")
-            }
-
+        else {
+            // userID가 null인 경우, 처리할 내용
+            Log.e("PostContent", "userID가 null입니다.")
+        }
     }
-
 }
