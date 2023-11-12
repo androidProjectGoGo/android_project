@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
+import android.widget.SeekBar
+import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,11 +19,16 @@ import com.google.firebase.ktx.Firebase
 class PostListActivity : AppCompatActivity() {
     private var adapter : PostlistRVAdapter?= null
     private lateinit var auth: FirebaseAuth
-    private val recyclerViewItems by lazy { findViewById<RecyclerView>(R.id.postListView) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.postlist)
+
+        val recyclerViewItems = findViewById<RecyclerView>(R.id.postListView)
+        val isSellCheck = findViewById<Switch>(R.id.isSellCheck)
+        val priceBar = findViewById<SeekBar>(R.id.priceBar)
+        val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
 
 
         auth = Firebase.auth
@@ -42,12 +50,28 @@ class PostListActivity : AppCompatActivity() {
                 intent.putExtra("title", postItem.title)
                 intent.putExtra("isSell", postItem.isSell)
                 intent.putExtra("price", postItem.price)
-                //intent.putExtra("content", postItem.content)
+                intent.putExtra("content", postItem.content)
                 //intent.putExtra("imageURL", postItem.imageURL)
-                intent.putExtra("userID", postItem.userID) // postId를 전달하거나 다른 필요한 정보 전달
+                intent.putExtra("userID", postItem.userId) // postId를 전달하거나 다른 필요한 정보 전달
                 startActivity(intent)
             }
-        }
 
+            isSellCheck.setOnCheckedChangeListener { _, isChecked ->
+                // isSellCheck 스위치 상태에 따라 판매 여부를 확인하고 리스트를 갱신
+                adapter?.filterItems(isChecked, priceBar.progress)
+            }
+
+            priceBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    priceValueTv.text = progress.toString()
+                    adapter?.filterItems(isSellCheck.isChecked, progress)
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
+            })
+
+        }
     }
 }

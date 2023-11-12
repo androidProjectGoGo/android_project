@@ -52,11 +52,11 @@
         android:id="@+id/priceBar"
         android:layout_width="171dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/price_tv"
+        app:layout_constraintStart_toEndOf="@+id/price_value_tv"
         app:layout_constraintTop_toBottomOf="@+id/isSellCheck"
         android:layout_margin="10dp"
-        android:max="50"
-        android:progress="20"/>
+        android:max="100"
+        android:progress="100"/>
 
     <TextView
         android:id="@+id/price_tv"
@@ -64,6 +64,15 @@
         android:layout_height="wrap_content"
         android:text="가격"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/isSellCheck"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"/>
+    <TextView
+        android:id="@+id/price_value_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="100"
+        app:layout_constraintStart_toEndOf="@+id/price_tv"
         app:layout_constraintTop_toBottomOf="@+id/isSellCheck"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"/>
