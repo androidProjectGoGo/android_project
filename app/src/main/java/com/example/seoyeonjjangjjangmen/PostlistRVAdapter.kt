@@ -93,6 +93,7 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
         }
     }
 
+
     override fun getItemCount(): Int {
         val itemCount = postItems.size
         //Log.d("PostlistRVAdapter", "getItemCount: $itemCount")
@@ -114,8 +115,6 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
                 View.GONE
             }
 
-            // 이미지 로딩 코드를 추가.. imageURL을 이미지뷰에 설정하기
-            //일단 이미지는 나중에.. 하겟듬
         }
     }
 }

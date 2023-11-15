@@ -1,6 +1,7 @@
 package com.example.seoyeonjjangjjangmen
 
 import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -27,9 +28,8 @@ class PostContent : AppCompatActivity() {
         val titleTv = findViewById<TextView>(R.id.title_tv)
         val contentTv = findViewById<TextView>(R.id.content_tv)
         val priceTv = findViewById<TextView>(R.id.price_tv)
-        val imageView = findViewById<ImageView>(R.id.content_iv)
         val isSell = findViewById<TextView>(R.id.isSell_tv)
-        val chatBtn = findViewById<Button>(R.id.postBtn)
+        val chatStartBtn = findViewById<Button>(R.id.chatStartBtn)
         val useridTv = findViewById<TextView>(R.id.userid_tv)
         
         //userID 받기
@@ -38,7 +38,6 @@ class PostContent : AppCompatActivity() {
         val isSellValue = intent.getBooleanExtra("isSell", false)
         val price = intent.getLongExtra("price", 0)
         val content = intent.getStringExtra("content")
-        val imageURL = intent.getStringExtra("imageURL")
         Log.d("userID", "$userID")
 
         if (userID != null) {
@@ -52,6 +51,12 @@ class PostContent : AppCompatActivity() {
         else {
             // userID가 null인 경우, 처리할 내용
             Log.e("PostContent", "userID가 null입니다.")
+        }
+
+        chatStartBtn.setOnClickListener{
+            val intent = Intent(this, ChatRoomActivity::class.java)
+            //intent.putExtra("userID", userID)
+            startActivity(intent)
         }
     }
 }

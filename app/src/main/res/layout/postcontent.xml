@@ -7,12 +7,6 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <ImageView
-        android:id="@+id/content_iv"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        tools:srcCompat="@tools:sample/avatars"
-        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/userid_tv"
@@ -20,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="판매자 ID"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@+id/content_iv"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="16dp"/>
 
@@ -63,7 +57,7 @@
         android:layout_margin="20dp"/>
 
     <Button
-        android:id="@+id/postBtn"
+        android:id="@+id/chatStartBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="채팅하기"
