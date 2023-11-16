@@ -12,11 +12,25 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class PostContent : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+
+    fun goToChatRoom(chatRoom: ChatRoom, userID: String?) {
+
+
+        var intent = Intent(this, ChatRoomActivity::class.java)
+        intent.putExtra("ChatRoom", chatRoom)
+        intent.putExtra("userID", userID)
+        intent.putExtra("ChatRoomKey", "")
+        startActivity(intent)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +68,43 @@ class PostContent : AppCompatActivity() {
         }
 
         chatStartBtn.setOnClickListener{
-            val intent = Intent(this, ChatRoomActivity::class.java)
+
+            // userID --> 게시글 작성자의 Uid
+            var myUid = FirebaseAuth.getInstance().uid // 내 Uid
+            var database = FirebaseDatabase.getInstance().getReference("ChatRoom") // 넣을 database
+            var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
+
+
+            //System.out.println("Debug1") // 성공
+
+            /*database.child("chatRooms")
+                .orderByChild("users/${userID}").equalTo(true) // 상대방 Uid가 포함된 채팅방이 있는지 확인
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) {}
+                    override fun onDataChange(snapshot: DataSnapshot) {
+
+                        if (snapshot.value == null) { // 채팅방이 없는 경우
+
+                            println("No ChatRoom")
+                            // 채팅방 새로 생성 후 이동
+                            database.child("chatRooms").push().setValue(chatRoom).addOnSuccessListener {
+                                goToChatRoom(chatRoom, userID)
+                            }
+                        }
+                        else { // 채팅방이 이미 있는 경우
+                            println("ChatRoom")
+                            //startActivity(Intent(this, MainActivity::class.java))
+                            goToChatRoom(chatRoom, userID)
+                        }
+                    }
+
+                })
+                */
+
+            goToChatRoom(chatRoom, userID)
+            //val intent = Intent(this, ChatRoom::class.java)
             //intent.putExtra("userID", userID)
-            startActivity(intent)
+            //startActivity(intent)
         }
     }
 }
