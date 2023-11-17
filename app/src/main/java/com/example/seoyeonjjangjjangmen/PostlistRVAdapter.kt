@@ -23,19 +23,19 @@ data class PostItem(
 )
 
 
-class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView.Adapter<PostlistRVAdapter.ViewHolder>() {
+class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Adapter<PostlistRVAdapter.ViewHolder>() {
     private val postItems: MutableList<PostItem> = mutableListOf()
     private val filteredItems: MutableList<PostItem> = mutableListOf()
 
     val db = Firebase.firestore
     private val postsCollection = db.collection("post")
+    private val usersCollection = db.collection("user")
     private val auth = FirebaseAuth.getInstance()
-    //private var uid = ""
     private var onItemClickListener: ((PostItem)-> Unit)?= null
 
 
     init {
-        // 데이터를 가져오기
+        // 데이터 가져오기
         postsCollection.get()
             .addOnSuccessListener { querySnapshot ->
                 postItems.clear()
@@ -46,7 +46,6 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
                     val isSell = document.getBoolean("isSell") ?: false
                     val userId = document.getString("userID")?:""
                     val content = document.getString("content")?:""
-                    //uid = document.getString("uid")?:""
 
                     // PostItem 객체 생성 및 리스트에 추가
                     val postItem = PostItem(title, price, isSell, userId, content)
@@ -58,6 +57,22 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
             .addOnFailureListener { e ->
                 Log.e("PostlistRVAdapter", "데이터 가져오기 실패: $e")
             }
+
+
+        usersCollection.whereEqualTo("uid", uid)//uid-> userid로 만들기
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    Log.d("Firestore", "${document.id} => ${document.data}")
+                    uid = document.id
+                    //document.id가 문서 이름. 즉 userid와 같이 됨.
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Error getting documents: ", exception)
+            }
+
+
     }
 
     fun filterItems(isSellChecked: Boolean, maxPrice: Int) {
@@ -107,11 +122,11 @@ class PostlistRVAdapter(val context: Context, val userID: String) : RecyclerView
             binding.itemPrice.text = postItem.price.toString()
             binding.itemIsSellTag.text = if (postItem.isSell) "판매중" else "판매완료"
 
-            binding.itemMyPostTag.visibility = if (userID == postItem.userId) {
-                Log.d("PostlistRVAdapter", "currentUser: $userID, postItem.userId: ${postItem.userId}")
+            binding.itemMyPostTag.visibility = if (uid == postItem.userId) {
+                Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
                 View.VISIBLE
             } else {
-                Log.d("PostlistRVAdapter", "currentUser: $userID, postItem.userId: ${postItem.userId}")
+                Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
                 View.GONE
             }
 
