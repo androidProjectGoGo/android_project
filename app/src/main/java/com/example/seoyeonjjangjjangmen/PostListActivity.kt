@@ -39,6 +39,7 @@ class PostListActivity : AppCompatActivity() {
 
             val intent = Intent(this, PostActivity::class.java)
             intent.putExtra("isNew", isMineCheck)
+            Log.d("postID", isMineCheck.toString())
             startActivity(intent)
         }
 
@@ -61,6 +62,8 @@ class PostListActivity : AppCompatActivity() {
                     val intent = Intent(this, PostActivity::class.java)
                     intent.putExtra("isNew", false)
                     intent.putExtra("postID", postItem.userId)
+                    Log.d("postID", postItem.userId)
+
                     startActivity(intent)
                 }
             }

@@ -42,6 +42,7 @@ class PostActivity : AppCompatActivity() {
 
 
         var isNew = intent.getBooleanExtra("isNew", false) //Changepoint
+        Log.d("postIDinpost", isNew.toString())
         //새 글 작성
         if (isNew == true) {
             findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.INVISIBLE
