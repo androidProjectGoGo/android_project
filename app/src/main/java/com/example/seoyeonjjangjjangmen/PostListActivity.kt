@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
+import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
@@ -30,6 +31,17 @@ class PostListActivity : AppCompatActivity() {
         val priceBar = findViewById<SeekBar>(R.id.priceBar)
         val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
 
+        val writeBtn = findViewById<Button>(R.id.writebutton)
+        val isMineCheck = true
+
+
+        writeBtn.setOnClickListener{
+
+            val intent = Intent(this, PostActivity::class.java)
+            intent.putExtra("isNew", isMineCheck)
+            startActivity(intent)
+        }
+
 
         auth = Firebase.auth
         val currentUser = auth.currentUser
@@ -44,17 +56,28 @@ class PostListActivity : AppCompatActivity() {
             recyclerViewItems.adapter = adapter
 
 
-            adapter?.setOnItemClickListener { postItem ->//PostContent로 전환
-                // 클릭된 post의 정보를 PostContent로 전달
-                val intent = Intent(this, PostContent::class.java)
-                intent.putExtra("title", postItem.title)
-                intent.putExtra("isSell", postItem.isSell)
-                intent.putExtra("price", postItem.price)
-                intent.putExtra("content", postItem.content)
-                //intent.putExtra("imageURL", postItem.imageURL)
-                intent.putExtra("userID", postItem.userId) // postId를 전달하거나 다른 필요한 정보 전달
-                startActivity(intent)
+            if(isMineCheck==true){
+                adapter?.setOnItemClickListener { postItem -> //수정하기로 전환
+                    val intent = Intent(this, PostActivity::class.java)
+                    intent.putExtra("isNew", false)
+                    intent.putExtra("postID", postItem.userId)
+                    startActivity(intent)
+                }
             }
+
+            else{
+                adapter?.setOnItemClickListener { postItem ->//PostContent로 전환
+                    // 클릭된 post의 정보를 PostContent로 전달
+                    val intent = Intent(this, PostContent::class.java)
+                    intent.putExtra("title", postItem.title)
+                    intent.putExtra("isSell", postItem.isSell)
+                    intent.putExtra("price", postItem.price)
+                    intent.putExtra("content", postItem.content)
+                    intent.putExtra("userID", postItem.userId) // postId를 전달하거나 다른 필요한 정보 전달
+                    startActivity(intent)
+                }
+            }
+
 
             isSellCheck.setOnCheckedChangeListener { _, isChecked ->
                 // isSellCheck 스위치 상태에 따라 판매 여부를 확인하고 리스트를 갱신

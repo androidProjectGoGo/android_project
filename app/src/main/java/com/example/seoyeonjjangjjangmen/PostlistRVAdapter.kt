@@ -122,9 +122,9 @@ class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Ad
             binding.itemPrice.text = postItem.price.toString()
             binding.itemIsSellTag.text = if (postItem.isSell) "판매중" else "판매완료"
 
+
             binding.itemMyPostTag.visibility = if (uid == postItem.userId) {
                 Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
-                View.VISIBLE
             } else {
                 Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
                 View.GONE

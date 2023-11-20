@@ -1,6 +1,7 @@
 package com.example.seoyeonjjangjjangmen
 
 import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -39,7 +40,8 @@ class PostActivity : AppCompatActivity() {
             }
         })
 
-        var isNew = true //Changepoint
+
+        var isNew = intent.getBooleanExtra("isNew", false) //Changepoint
         //새 글 작성
         if (isNew == true) {
             findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.INVISIBLE
@@ -143,38 +145,41 @@ class PostActivity : AppCompatActivity() {
 
             //글 데이터 불러오기
             //changePoint!! postID 가져오기
-            val postRef = db.collection("post").document("7c461fb0-f8e2-41ab-b36b-757b86161740")
-            postRef.get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        // 문서가 존재하는 경우
-                        val data = documentSnapshot.data
-                        if (data != null) {
-                            val getTitle = data["title"] as String
-                            val getIsSell = data["isSell"] as Boolean
-                            val getPrice = data["price"] as Long
-                            val getContent = data["content"] as String
-                            val getImageURL = data["imageURL"] as String
+            var postID = intent.getStringExtra("postID")
+            val postRef = postID?.let { db.collection("post").document(it) }
+            if (postRef != null) {
+                postRef.get()
+                    .addOnSuccessListener { documentSnapshot ->
+                        if (documentSnapshot.exists()) {
+                            // 문서가 존재하는 경우
+                            val data = documentSnapshot.data
+                            if (data != null) {
+                                val getTitle = data["title"] as String
+                                val getIsSell = data["isSell"] as Boolean
+                                val getPrice = data["price"] as Long
+                                val getContent = data["content"] as String
+                                val getImageURL = data["imageURL"] as String
 
-                            findViewById<EditText>(R.id.title).setText(getTitle)
-                            findViewById<EditText>(R.id.content).setText(getContent)
-                            if (getIsSell==false){
-                                findViewById<RadioButton>(R.id.isNotSell).isChecked = true
-                            }else{
-                                findViewById<RadioButton>(R.id.isSell).isChecked = true
+                                findViewById<EditText>(R.id.title).setText(getTitle)
+                                findViewById<EditText>(R.id.content).setText(getContent)
+                                if (getIsSell==false){
+                                    findViewById<RadioButton>(R.id.isNotSell).isChecked = true
+                                }else{
+                                    findViewById<RadioButton>(R.id.isSell).isChecked = true
+                                }
+
+                                seekBar.progress = getPrice.toInt()
+
                             }
-
-                            seekBar.progress = getPrice.toInt()
-
+                        } else {
+                            // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
+                            Log.d(ContentValues.TAG, "Document does not exist.")
                         }
-                    } else {
-                        // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
-                        Log.d(ContentValues.TAG, "Document does not exist.")
                     }
-                }
-                .addOnFailureListener { e ->
-                    println("문서 가져오기 실패: $e")
-                }
+                    .addOnFailureListener { e ->
+                        println("문서 가져오기 실패: $e")
+                    }
+            }
 
             //upddate로 글 수정하기
             postBtn.setOnClickListener{
