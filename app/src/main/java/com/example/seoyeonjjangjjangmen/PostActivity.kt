@@ -41,10 +41,11 @@ class PostActivity : AppCompatActivity() {
         })
 
 
-        var isNew = intent.getBooleanExtra("isNew", false) //Changepoint
-        Log.d("postIDinpost", isNew.toString())
+        var isNew = intent.getBooleanExtra("isNew",true) //Changepoint
         //새 글 작성
-        if (isNew == true) {
+//        var isNew = true
+        if (isNew) {
+            Log.d("d","true")
             findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.INVISIBLE
             val db = Firebase.firestore
             val auth = Firebase.auth
@@ -146,7 +147,9 @@ class PostActivity : AppCompatActivity() {
 
             //글 데이터 불러오기
             //changePoint!! postID 가져오기
+            Log.d("d","false")
             var postID = intent.getStringExtra("postID")
+           Log.d("d","postID"+postID)
             val postRef = postID?.let { db.collection("post").document(it) }
             if (postRef != null) {
                 postRef.get()
