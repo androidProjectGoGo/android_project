@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -27,9 +28,10 @@ class PostActivity : AppCompatActivity() {
 
         val postBtn = findViewById<Button>(R.id.postBtn)
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
+        val price = findViewById<TextView>(R.id.price)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-
+                price.text = "Price: $progress"
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -116,6 +118,7 @@ class PostActivity : AppCompatActivity() {
                                         .set(userPostListData)
                                         .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
                                         .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
+                                    finish()
                                 }
                             } else {
                                 // 문서가 존재하지 않는 경우, 문서를 생성하고 새로운 데이터를 배열로 설정
@@ -174,6 +177,7 @@ class PostActivity : AppCompatActivity() {
 
                                 seekBar.progress = getPrice.toInt()
 
+
                             }
                         } else {
                             // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
@@ -214,6 +218,7 @@ class PostActivity : AppCompatActivity() {
                             postRef.update(updatedData as Map<String, Any>)
                                 .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully updated!") }
                                 .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error updating document", e) }
+                            finish()
                         } else {
                             // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
                             Log.d(ContentValues.TAG, "Document does not exist.")
