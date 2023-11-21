@@ -19,7 +19,8 @@ data class PostItem(
     val price: Long,
     val isSell: Boolean,
     val userId: String,
-    val content: String
+    val content: String,
+    val postID : String
 )
 
 
@@ -46,9 +47,10 @@ class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Ad
                     val isSell = document.getBoolean("isSell") ?: false
                     val userId = document.getString("userID")?:""
                     val content = document.getString("content")?:""
+                    val postID = document.id
 
                     // PostItem 객체 생성 및 리스트에 추가
-                    val postItem = PostItem(title, price, isSell, userId, content)
+                    val postItem = PostItem(title, price, isSell, userId, content, postID)
                     postItems.add(postItem)
                 }
                 filteredItems.addAll(postItems)

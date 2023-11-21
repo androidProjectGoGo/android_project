@@ -38,8 +38,8 @@ class PostListActivity : AppCompatActivity() {
         writeBtn.setOnClickListener{
 
             val intent = Intent(this, PostActivity::class.java)
-            intent.putExtra("isNew", isMineCheck)
-            Log.d("postID", isMineCheck.toString())
+            intent.putExtra("isNew", true)
+            Log.d("isNew", isMineCheck.toString())
             startActivity(intent)
         }
 
@@ -61,8 +61,8 @@ class PostListActivity : AppCompatActivity() {
                 adapter?.setOnItemClickListener { postItem -> //수정하기로 전환
                     val intent = Intent(this, PostActivity::class.java)
                     intent.putExtra("isNew", false)
-                    intent.putExtra("postID", postItem.userId)
-                    Log.d("postID", postItem.userId)
+                    intent.putExtra("postID", postItem.postID)
+                    Log.d("postID", postItem.postID)
 
                     startActivity(intent)
                 }
@@ -76,7 +76,8 @@ class PostListActivity : AppCompatActivity() {
                     intent.putExtra("isSell", postItem.isSell)
                     intent.putExtra("price", postItem.price)
                     intent.putExtra("content", postItem.content)
-                    intent.putExtra("userID", postItem.userId) // postId를 전달하거나 다른 필요한 정보 전달
+                    intent.putExtra("userID", postItem.userId)
+                    intent.putExtra("postID", postItem.postID)// postId를 전달하거나 다른 필요한 정보 전달
                     startActivity(intent)
                 }
             }
