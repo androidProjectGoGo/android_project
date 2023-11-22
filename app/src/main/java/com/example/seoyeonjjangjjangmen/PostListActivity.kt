@@ -20,6 +20,9 @@ import com.google.firebase.ktx.Firebase
 class PostListActivity : AppCompatActivity() {
     private var adapter : PostlistRVAdapter?= null
     private lateinit var auth: FirebaseAuth
+    val db = Firebase.firestore
+    private var isMineCheck = true
+    private lateinit var uid : String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,13 +33,11 @@ class PostListActivity : AppCompatActivity() {
         val isSellCheck = findViewById<Switch>(R.id.isSellCheck)
         val priceBar = findViewById<SeekBar>(R.id.priceBar)
         val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
-
         val writeBtn = findViewById<Button>(R.id.writebutton)
-        val isMineCheck = true
 
 
-        writeBtn.setOnClickListener{
 
+        writeBtn.setOnClickListener {
             val intent = Intent(this, PostActivity::class.java)
             intent.putExtra("isNew", true)
             Log.d("isNew", isMineCheck.toString())
@@ -49,56 +50,71 @@ class PostListActivity : AppCompatActivity() {
 
         if (auth.currentUser == null) {
             Log.e("PostlistActivity", "데이터 가져오기 실패")
-        }else {
+        } else {
             val userID = currentUser!!.uid
 
-            recyclerViewItems.layoutManager = LinearLayoutManager(this)
-            adapter = PostlistRVAdapter(this, userID)
-            recyclerViewItems.adapter = adapter
-
-
-            if(isMineCheck==true){
-                adapter?.setOnItemClickListener { postItem -> //수정하기로 전환
-                    val intent = Intent(this, PostActivity::class.java)
-                    intent.putExtra("isNew", false)
-                    intent.putExtra("postID", postItem.postID)
-                    Log.d("postID", postItem.postID)
-
-                    startActivity(intent)
+            val docRef = db.collection("user")
+            docRef.whereEqualTo("uid", userID)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        uid = document.id // 문서 이름 uid에 할당.
+                        Log.d("document", "uid: $uid")
+                        setupRecyclerView(userID)
+                    }
                 }
+                .addOnFailureListener { exception ->
+                    Log.w("document", "문서 조회 실패", exception)
+                }
+        }
+
+        isSellCheck.setOnCheckedChangeListener { _, isChecked ->
+            // isSellCheck 스위치 상태에 따라 판매 여부를 확인하고 리스트를 갱신
+            adapter?.filterItems(isChecked, priceBar.progress)
+        }
+
+        priceBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                priceValueTv.text = progress.toString()
+                adapter?.filterItems(isSellCheck.isChecked, progress)
             }
 
-            else{
-                adapter?.setOnItemClickListener { postItem ->//PostContent로 전환
-                    // 클릭된 post의 정보를 PostContent로 전달
-                    val intent = Intent(this, PostContent::class.java)
-                    intent.putExtra("title", postItem.title)
-                    intent.putExtra("isSell", postItem.isSell)
-                    intent.putExtra("price", postItem.price)
-                    intent.putExtra("content", postItem.content)
-                    intent.putExtra("userID", postItem.userId)
-                    intent.putExtra("postID", postItem.postID)// postId를 전달하거나 다른 필요한 정보 전달
-                    startActivity(intent)
-                }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+    }
+
+    private fun setupRecyclerView(userID: String) {
+        val recyclerViewItems = findViewById<RecyclerView>(R.id.postListView)
+        recyclerViewItems.layoutManager = LinearLayoutManager(this)
+        adapter = PostlistRVAdapter(this, userID)
+        recyclerViewItems.adapter = adapter
+
+        adapter?.setOnItemClickListener { postItem ->
+            Log.d("nameChange", "$userID <=> ${postItem.userId}")
+            if (uid == postItem.userId) {
+                isMineCheck = true
+                val intent = Intent(this, PostActivity::class.java)
+                intent.putExtra("isNew", false)
+                intent.putExtra("postID", postItem.postID)
+                Log.d("postID", postItem.postID)
+                startActivity(intent)
+            } else {
+                isMineCheck = false
+                val intent = Intent(this, PostContent::class.java)
+                intent.putExtra("title", postItem.title)
+                intent.putExtra("isSell", postItem.isSell)
+                intent.putExtra("price", postItem.price)
+                intent.putExtra("content", postItem.content)
+                intent.putExtra("userID", postItem.userId)
+                intent.putExtra("postID", postItem.postID)
+                startActivity(intent)
             }
-
-
-            isSellCheck.setOnCheckedChangeListener { _, isChecked ->
-                // isSellCheck 스위치 상태에 따라 판매 여부를 확인하고 리스트를 갱신
-                adapter?.filterItems(isChecked, priceBar.progress)
-            }
-
-            priceBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    priceValueTv.text = progress.toString()
-                    adapter?.filterItems(isSellCheck.isChecked, progress)
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-                override fun onStopTrackingTouch(seekBar: SeekBar) {}
-            })
-
         }
     }
 }

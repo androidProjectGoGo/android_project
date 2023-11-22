@@ -62,7 +62,7 @@ class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Ad
 
 
         usersCollection.whereEqualTo("uid", uid)//uid-> userid로 만들기
-            .get()
+        .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     Log.d("Firestore", "${document.id} => ${document.data}")
