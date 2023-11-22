@@ -209,24 +209,26 @@ class PostActivity : AppCompatActivity() {
                 )
 
                 // Firestore에서 문서 가져오기
-                val postRef = db.collection("post").document("7c461fb0-f8e2-41ab-b36b-757b86161740")
+                val postRef = postID?.let { it1 -> db.collection("post").document(it1) }
 
-                postRef.get()
-                    .addOnSuccessListener { documentSnapshot ->
-                        if (documentSnapshot.exists()) {
-                            // 문서가 이미 존재하는 경우, 업데이트 데이터를 사용하여 업데이트
-                            postRef.update(updatedData as Map<String, Any>)
-                                .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully updated!") }
-                                .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error updating document", e) }
-                            finish()
-                        } else {
-                            // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
-                            Log.d(ContentValues.TAG, "Document does not exist.")
+                if (postRef != null) {
+                    postRef.get()
+                        .addOnSuccessListener { documentSnapshot ->
+                            if (documentSnapshot.exists()) {
+                                // 문서가 이미 존재하는 경우, 업데이트 데이터를 사용하여 업데이트
+                                postRef.update(updatedData as Map<String, Any>)
+                                    .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully updated!") }
+                                    .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error updating document", e) }
+                                finish()
+                            } else {
+                                // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행
+                                Log.d(ContentValues.TAG, "Document does not exist.")
+                            }
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        println("문서 가져오기 실패: $e")
-                    }
+                        .addOnFailureListener { e ->
+                            println("문서 가져오기 실패: $e")
+                        }
+                }
             }
         }
     }
