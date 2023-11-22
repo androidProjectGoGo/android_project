@@ -117,4 +117,47 @@ class PostListActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        loadDataAndUpdateRecyclerView()
+
+    }
+    private fun loadDataAndUpdateRecyclerView() {
+        // Firebase에서 데이터를 가져와 RecyclerView를 업데이트하는 작업을 수행합니다.
+        // 예를 들어, Firebase 쿼리를 사용하여 데이터를 가져온 후, RecyclerView를 업데이트합니다.
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            Log.e("PostlistActivity", "데이터 가져오기 실패")
+        } else {
+            val userID = currentUser.uid
+
+            val docRef = db.collection("user")
+            docRef.whereEqualTo("uid", userID)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        uid = document.id // 문서 이름 uid에 할당.
+                        Log.d("document", "uid: $uid")
+                        setupRecyclerView(userID)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w("document", "문서 조회 실패", exception)
+                }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
