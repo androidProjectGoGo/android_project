@@ -87,7 +87,7 @@ class SignupActivity: AppCompatActivity() {
                                         .set(userTokenInfo)
                                         .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully written!") }
                                         .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
-                                    val intent2 = Intent(this, PostActivity::class.java) //ChangePoint
+                                    val intent2 = Intent(this, SigninActivity::class.java) //ChangePoint
                                     startActivity(intent2)
                                 }
                             }
