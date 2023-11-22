@@ -35,15 +35,12 @@ class PostListActivity : AppCompatActivity() {
         val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
         val writeBtn = findViewById<Button>(R.id.writebutton)
 
-
-
         writeBtn.setOnClickListener {
             val intent = Intent(this, PostActivity::class.java)
             intent.putExtra("isNew", true)
             Log.d("isNew", isMineCheck.toString())
             startActivity(intent)
         }
-
 
         auth = Firebase.auth
         val currentUser = auth.currentUser
@@ -53,7 +50,7 @@ class PostListActivity : AppCompatActivity() {
         } else {
             val userID = currentUser!!.uid
 
-            val docRef = db.collection("user")
+            val docRef = db.collection("user")//uid 전환
             docRef.whereEqualTo("uid", userID)
                 .get()
                 .addOnSuccessListener { documents ->
@@ -89,7 +86,7 @@ class PostListActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupRecyclerView(userID: String) {
+    private fun setupRecyclerView(userID: String) {//초기 설정
         val recyclerViewItems = findViewById<RecyclerView>(R.id.postListView)
         recyclerViewItems.layoutManager = LinearLayoutManager(this)
         adapter = PostlistRVAdapter(this, userID)
@@ -119,14 +116,13 @@ class PostListActivity : AppCompatActivity() {
     }
 
 
-    override fun onResume() {
+    override fun onResume() {//다시 돌아왔을 때
         super.onResume()
         loadDataAndUpdateRecyclerView()
 
     }
-    private fun loadDataAndUpdateRecyclerView() {
-        // Firebase에서 데이터를 가져와 RecyclerView를 업데이트하는 작업을 수행합니다.
-        // 예를 들어, Firebase 쿼리를 사용하여 데이터를 가져온 후, RecyclerView를 업데이트합니다.
+
+    private fun loadDataAndUpdateRecyclerView() {//recyclerview 데이터 업데이트
         val currentUser = auth.currentUser
 
         if (currentUser == null) {
@@ -149,15 +145,5 @@ class PostListActivity : AppCompatActivity() {
                 }
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 }

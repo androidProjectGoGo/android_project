@@ -73,8 +73,6 @@ class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Ad
             .addOnFailureListener { exception ->
                 Log.e("Firestore", "Error getting documents: ", exception)
             }
-
-
     }
 
     fun filterItems(isSellChecked: Boolean, maxPrice: Int) {
