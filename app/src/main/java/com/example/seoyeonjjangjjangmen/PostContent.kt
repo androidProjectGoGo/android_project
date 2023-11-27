@@ -21,16 +21,7 @@ import com.google.firebase.ktx.Firebase
 
 class PostContent : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-
-    fun goToChatRoom(chatRoom: ChatRoom, userID: String?) {
-
-
-        var intent = Intent(this, ChatRoomActivity::class.java)
-        intent.putExtra("ChatRoom", chatRoom)
-        intent.putExtra("userID", userID)
-        intent.putExtra("ChatRoomKey", "")
-        startActivity(intent)
-    }
+    private lateinit var chatStartBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +34,7 @@ class PostContent : AppCompatActivity() {
         val contentTv = findViewById<TextView>(R.id.content_tv)
         val priceTv = findViewById<TextView>(R.id.price_tv)
         val isSell = findViewById<TextView>(R.id.isSell_tv)
-        val chatStartBtn = findViewById<Button>(R.id.chatStartBtn)
+        var chatStartBtn = findViewById<Button>(R.id.chatStartBtn)
         val useridTv = findViewById<TextView>(R.id.userid_tv)
         
         //userID 받기
@@ -67,12 +58,21 @@ class PostContent : AppCompatActivity() {
             Log.e("PostContent", "userID가 null입니다.")
         }
 
-        chatStartBtn.setOnClickListener{
 
-            // userID --> 게시글 작성자의 Uid
+        chatStartBtn.setOnClickListener{
+            val intent = Intent(this,ChatRoomActivity::class.java)
+            startActivity(intent)
+
             var myUid = FirebaseAuth.getInstance().uid // 내 Uid
             var database = FirebaseDatabase.getInstance().getReference("ChatRoom") // 넣을 database
             var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
+        }
+//        chatStartBtn.setOnClickListener{
+//
+//            // userID --> 게시글 작성자의 Uid
+//            var myUid = FirebaseAuth.getInstance().uid // 내 Uid
+//            var database = FirebaseDatabase.getInstance().getReference("ChatRoom") // 넣을 database
+//            var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
 
 
             //System.out.println("Debug1") // 성공
@@ -101,10 +101,9 @@ class PostContent : AppCompatActivity() {
                 })
                 */
 
-            goToChatRoom(chatRoom, userID)
+            //goToChatRoom(chatRoom, userID)
             //val intent = Intent(this, ChatRoom::class.java)
             //intent.putExtra("userID", userID)
             //startActivity(intent)
         }
     }
-}
