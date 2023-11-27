@@ -153,8 +153,8 @@ class SChatRoomActivity  : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    //chatRoomID가 있을 때
-    fun isChatRoomID(chatRoomID : String){
+    //message 업데이트
+    fun updateMessage(chatRoomID : String){
         Firebase.firestore.collection("chatRoomMessages")
             .document(chatRoomID)
             .collection("m")
@@ -194,10 +194,15 @@ class SChatRoomActivity  : AppCompatActivity() {
                 }
             }
     }
+    //chatRoomID가 있을 때
+    fun isChatRoomID(chatRoomID : String){
+        updateMessage(chatRoomID)
+    }
     //chatRoomID가 없을 때
     fun isNotChatRoomID(chatRoomID : String,userID:String,chatUserID:String){
         addChatRoomIDs(chatRoomID,userID)
         addChatRoomIDs(chatRoomID,chatUserID)
+        updateMessage(chatRoomID)
     }
     //chatRoomIDs 추가
     fun addChatRoomIDs(chatRoomID : String,target:String){
