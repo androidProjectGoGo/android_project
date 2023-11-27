@@ -2,7 +2,6 @@ package com.example.seoyeonjjangjjangmen
 
 import android.content.ContentValues
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -22,7 +21,7 @@ class SChatRoomActivity  : AppCompatActivity() {
     lateinit var listView: ListView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.s_chat_list)
+        setContentView(R.layout.s_chatroom)
         listView = findViewById(R.id.listView)
         val chatUserID = intent.getStringExtra("userID")
 

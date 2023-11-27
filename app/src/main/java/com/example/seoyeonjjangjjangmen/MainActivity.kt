@@ -26,6 +26,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         initializeView()
         setupRecycler()
+
+        val tabButton: Button = findViewById(R.id.chatListTab)
+        tabButton.setOnClickListener {
+            // Start the SChatRoomActivity when the button is clicked
+            val intent = Intent(this, SChatRoomActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     fun initializeView() { //뷰 초기화
@@ -42,6 +49,6 @@ class MainActivity : AppCompatActivity() {
 
     fun setupRecycler() {
         recycler_chatroom.layoutManager = LinearLayoutManager(this)
-        //recycler_chatroom.adapter = RecyclerChatRoomsAdapter(this)
+//        recycler_chatroom.adapter = SChatRoomActivity(this)
     }
 }
