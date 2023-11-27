@@ -21,13 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SChatRoomActivity"/>
         <activity android:name=".PostActivity"/>
         <activity android:name=".SignupActivity"/>
         <activity android:name=".PostListActivity"/>
+        <activity android:name=".Activity"/>
         <activity android:name=".PostContent"/>
         <activity android:name=".ChatRoomActivity"/>
         <activity android:name=".ChatRoom"/>
-        <activity android:name=".SChatRoomActivity"/>
+
     </application>
 
 </manifest>

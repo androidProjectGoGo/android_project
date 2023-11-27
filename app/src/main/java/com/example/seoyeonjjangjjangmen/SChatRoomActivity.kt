@@ -11,16 +11,19 @@ import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
 class SChatRoomActivity  : AppCompatActivity() {
-    var listView = findViewById<ListView>(R.id.listView)
     lateinit var adapter: ArrayAdapter<String>
+    lateinit var listView: ListView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.s_chat_list)
+        listView = findViewById(R.id.listView)
         val chatUserID = intent.getStringExtra("userID")
 
         val db = Firebase.firestore
@@ -33,8 +36,10 @@ class SChatRoomActivity  : AppCompatActivity() {
         var chatRoomDoc: DocumentReference
         var switchChatRoomDoc: DocumentReference
 
+
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         listView.adapter = adapter
+
 
         // Firestore에서 userID 가져오기
         if (uid != null) {
@@ -47,22 +52,54 @@ class SChatRoomActivity  : AppCompatActivity() {
                             userID = data["userID"] as String
                             chatRoomID = userID+chatUserID
                             switchChatRoomID = chatUserID+userID
+                            Log.d("userID",userID)
+                            if (chatUserID != null) {
+                                Log.d("receiveID",chatUserID)
+                            }
                             if(!chatRoomID.equals("x")){
-                                chatRoomDoc = db.collection("chatRoomMessages").document(chatRoomID)
-                                switchChatRoomDoc = db.collection("chatRoomMessages").document(switchChatRoomID)
+                                println("채팅룸 찾기")
+                                chatRoomDoc = db.collection("chatRoomIDList").document(chatRoomID)
+                                switchChatRoomDoc = db.collection("chatRoomIDList").document(switchChatRoomID)
+                                Log.d("Debug", "chatRoomID: $chatRoomID, userID: $userID, chatUserID: $chatUserID")
+//                                isChatRoomID(chatRoomID)
                                 //chatRoomID가 이미 있을 때
-                                if(chatRoomDoc!=null || switchChatRoomDoc!=null){
-                                    if(chatRoomDoc == null){
-                                        chatRoomID=switchChatRoomID
+                                chatRoomDoc.get().addOnCompleteListener { task ->
+                                    Log.d("Debug2", "chatRoomID: $chatRoomID, userID: $userID, chatUserID: $chatUserID")
+
+                                    if (task.isSuccessful) {
+                                        if (task.result?.exists() == true) {
+                                            // Document exists
+                                            isChatRoomID(chatRoomID)
+                                        } else {
+                                            // Document does not exist
+                                            // Switch to the other document
+                                            switchChatRoomDoc.get().addOnCompleteListener { switchTask ->
+                                                if (switchTask.isSuccessful && switchTask.result?.exists() == true) {
+
+                                                    // Switch to the other document
+                                                    chatRoomID = switchChatRoomID
+                                                    isChatRoomID(chatRoomID)
+                                                } else {
+                                                    // Both documents do not exist
+                                                    if (chatUserID != null) {
+                                                        db.collection("chatRoomIDList")
+                                                            .document(chatRoomID)
+                                                            .set(mapOf<String, Any>())
+                                                            .addOnSuccessListener {
+                                                                Log.d("Firestore", "Empty document added successfully.")
+                                                            }
+                                                            .addOnFailureListener { e ->
+                                                                Log.w("Firestore", "Error adding empty document", e)
+                                                            }
+                                                        isNotChatRoomID(chatRoomID, userID, chatUserID)
+                                                        Log.d("채팅방 생성 이름 :", chatRoomID)
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                    isChatRoomID(chatRoomID)
                                 }
-                                //chatRoomID가 없을때
-                                else{
-                                    if (chatUserID != null) {
-                                        isNotChatRoomID(chatRoomID,userID,chatUserID)
-                                    }
-                                }
+
                             }
                             println("userID: $userID")
                         }
@@ -79,12 +116,16 @@ class SChatRoomActivity  : AppCompatActivity() {
         var sendMessageBtn = findViewById<Button>(R.id.sendMessageBtn)
         sendMessageBtn.setOnClickListener {
             if (inputMessageEditText.text != null) {
-                var message = inputMessageEditText.text
+                var message = inputMessageEditText.text.toString()
                 if (!chatRoomID.equals("x")) {
                     //메세지 데이터에 저장
                     sendMessage(chatRoomID, message, userID)
                     //메세지 ui 보여주기
 
+                    //text초기화
+                    inputMessageEditText.setText("")
+//                    isChatRoomID(chatRoomID)
+                    println("잘되는지 확인"+chatRoomID)
                 }
             }
         }
@@ -95,18 +136,28 @@ class SChatRoomActivity  : AppCompatActivity() {
         Firebase.firestore.collection("chatRoomMessages")
             .document(chatRoomID)
             .collection("m")
-            .orderBy("timestamp")
+            .orderBy(FieldPath.documentId(), Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
-                    // 에러 처리
+                    println("Error getting documents: $e")
                     return@addSnapshotListener
                 }
 
+                if (snapshot != null) {
+                    println("Number of documents: ${snapshot.documents.size}")
+                } else {
+                    println("Snapshot is null")
+                }
+                println("message")
+
                 val messages = mutableListOf<String>()
                 snapshot?.documents?.forEach { document ->
-                    val chatMessage = document.toObject(ChatMessage::class.java)
-                    if (chatMessage != null) {
-                        val messageText = "${chatMessage.sender}: ${chatMessage.message}"
+
+                    val sender = document.getString("sender")
+                    val message = document.getString("message")
+                    println(message)
+                    if (sender != null && message != null) {
+                        val messageText = "$sender: $message"
                         messages.add(messageText)
                     }
                 }
@@ -140,19 +191,14 @@ class SChatRoomActivity  : AppCompatActivity() {
                         // 현재 배열 가져오기
                         val currentPostIDs = data["chatRoomIDs"] as? List<String> ?: emptyList()
 
-                        // 새로운 데이터 추가
                         val updatedChatIDs = currentPostIDs.toMutableList()
                         updatedChatIDs.add(chatRoomID)
-                        // 업데이트된 배열을 Firestore에 업로드
-                        val userPostListData = hashMapOf(
-                            "chatRoomIDs" to chatRoomID
-                        )
 
+                        val userPostListData = hashMapOf("chatRoomIDs" to updatedChatIDs)
                         db.collection("userChatList").document(target)
                             .set(userPostListData)
                             .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
                             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
-                        finish()
                     }
                 } else {
                     // 문서가 존재하지 않는 경우, 문서를 생성하고 새로운 데이터를 배열로 설정
@@ -171,9 +217,9 @@ class SChatRoomActivity  : AppCompatActivity() {
             }
     }
     //메세지 보냈을 때 firebase 함수
-    fun sendMessage(chatRoomID: String, message: Editable,userID: String){
-        val timestamp = System.currentTimeMillis()
-        val documentId = "m$timestamp"
+    fun sendMessage(chatRoomID: String, message: String,userID: String){
+        val timestamp = System.currentTimeMillis().toString()
+        val documentId = "$timestamp"
         Firebase.firestore.collection("chatRoomMessages").document(chatRoomID).collection("m").document(documentId)
             .set(
                 hashMapOf(

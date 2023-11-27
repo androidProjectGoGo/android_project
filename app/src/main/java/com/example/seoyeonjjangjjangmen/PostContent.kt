@@ -21,7 +21,7 @@ import com.google.firebase.ktx.Firebase
 
 class PostContent : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-
+    private lateinit var chatStartBtn: Button
     fun goToChatRoom(chatRoom: ChatRoom, userID: String?) {
 
 
@@ -43,7 +43,7 @@ class PostContent : AppCompatActivity() {
         val contentTv = findViewById<TextView>(R.id.content_tv)
         val priceTv = findViewById<TextView>(R.id.price_tv)
         val isSell = findViewById<TextView>(R.id.isSell_tv)
-        val chatStartBtn = findViewById<Button>(R.id.chatStartBtn)
+        chatStartBtn = findViewById(R.id.chatStartBtn)
         val useridTv = findViewById<TextView>(R.id.userid_tv)
         
         //userID 받기
