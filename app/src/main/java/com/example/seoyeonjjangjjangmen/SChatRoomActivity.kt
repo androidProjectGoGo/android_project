@@ -1,13 +1,16 @@
 package com.example.seoyeonjjangjjangmen
 
 import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldPath
@@ -22,6 +25,13 @@ class SChatRoomActivity  : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.s_chatroom)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
         listView = findViewById(R.id.listView)
         val chatUserID = intent.getStringExtra("userID")
 
@@ -130,6 +140,19 @@ class SChatRoomActivity  : AppCompatActivity() {
         }
 
     }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                // Handle the back button click
+                // You can start the desired activity here
+                val intent = Intent(this, PostListActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     //chatRoomID가 있을 때
     fun isChatRoomID(chatRoomID : String){
         Firebase.firestore.collection("chatRoomMessages")
