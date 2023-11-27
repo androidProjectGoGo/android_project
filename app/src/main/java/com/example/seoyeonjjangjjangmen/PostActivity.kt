@@ -43,11 +43,11 @@ class PostActivity : AppCompatActivity() {
         })
 
 
-        var isNew = intent.getBooleanExtra("isNew",true) //Changepoint
+        var isNew = intent.getBooleanExtra("isNew", true) //Changepoint
         //새 글 작성
 //        var isNew = true
         if (isNew) {
-            Log.d("d","true")
+            Log.d("d", "true")
             findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.INVISIBLE
             val db = Firebase.firestore
             val auth = Firebase.auth
@@ -73,7 +73,7 @@ class PostActivity : AppCompatActivity() {
                     .addOnFailureListener { e ->
                         println("문서 가져오기 실패: $e")
                     }
-                postBtn.setOnClickListener{
+                postBtn.setOnClickListener {
                     val title = findViewById<EditText>(R.id.title).text.toString()
                     val content = findViewById<EditText>(R.id.content).text.toString()
 
@@ -91,8 +91,19 @@ class PostActivity : AppCompatActivity() {
 
                     db.collection("post").document(postID)
                         .set(postData)
-                        .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully written!") }
-                        .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
+                        .addOnSuccessListener {
+                            Log.d(
+                                ContentValues.TAG,
+                                "DocumentSnapshot successfully written!"
+                            )
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(
+                                ContentValues.TAG,
+                                "Error writing document",
+                                e
+                            )
+                        }
 
                     // 문서 가져오기
                     db.collection("userPostList").document(userID)
@@ -103,7 +114,8 @@ class PostActivity : AppCompatActivity() {
                                 val data = documentSnapshot.data
                                 if (data != null) {
                                     // 현재 배열 가져오기
-                                    val currentPostIDs = data["postIDs"] as? List<String> ?: emptyList()
+                                    val currentPostIDs =
+                                        data["postIDs"] as? List<String> ?: emptyList()
 
                                     // 새로운 데이터 추가
                                     val updatedPostIDs = currentPostIDs.toMutableList()
@@ -116,8 +128,19 @@ class PostActivity : AppCompatActivity() {
 
                                     db.collection("userPostList").document(userID)
                                         .set(userPostListData)
-                                        .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
-                                        .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
+                                        .addOnSuccessListener {
+                                            Log.d(
+                                                ContentValues.TAG,
+                                                "Document successfully written!"
+                                            )
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w(
+                                                ContentValues.TAG,
+                                                "Error writing document",
+                                                e
+                                            )
+                                        }
                                     finish()
                                 }
                             } else {
@@ -128,8 +151,19 @@ class PostActivity : AppCompatActivity() {
 
                                 db.collection("userPostList").document(userID)
                                     .set(userPostListData)
-                                    .addOnSuccessListener { Log.d(ContentValues.TAG, "Document successfully written!") }
-                                    .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
+                                    .addOnSuccessListener {
+                                        Log.d(
+                                            ContentValues.TAG,
+                                            "Document successfully written!"
+                                        )
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w(
+                                            ContentValues.TAG,
+                                            "Error writing document",
+                                            e
+                                        )
+                                    }
                             }
                         }
                         .addOnFailureListener { e ->
@@ -142,7 +176,7 @@ class PostActivity : AppCompatActivity() {
         }
 
         //수정
-        else{
+        else {
             findViewById<RadioGroup>(R.id.isSellRadioGroup).visibility = View.VISIBLE
             postBtn.setText("수정하기")
             val db = Firebase.firestore
@@ -150,9 +184,9 @@ class PostActivity : AppCompatActivity() {
 
             //글 데이터 불러오기
             //changePoint!! postID 가져오기
-            Log.d("d","false")
+            Log.d("d", "false")
             var postID = intent.getStringExtra("postID")
-           Log.d("d","postID"+postID)
+            Log.d("d", "postID" + postID)
             val postRef = postID?.let { db.collection("post").document(it) }
             if (postRef != null) {
                 postRef.get()
@@ -169,9 +203,9 @@ class PostActivity : AppCompatActivity() {
 
                                 findViewById<EditText>(R.id.title).setText(getTitle)
                                 findViewById<EditText>(R.id.content).setText(getContent)
-                                if (getIsSell==false){
+                                if (getIsSell == false) {
                                     findViewById<RadioButton>(R.id.isNotSell).isChecked = true
-                                }else{
+                                } else {
                                     findViewById<RadioButton>(R.id.isSell).isChecked = true
                                 }
 
@@ -190,15 +224,15 @@ class PostActivity : AppCompatActivity() {
             }
 
             //upddate로 글 수정하기
-            postBtn.setOnClickListener{
+            postBtn.setOnClickListener {
 
                 val title = findViewById<EditText>(R.id.title).text.toString()
                 val content = findViewById<EditText>(R.id.content).text.toString()
                 val price = seekBar.progress// 여기에서 price 값을 설정 (예: seekBar.progress)
                 var isSellCheck = true
-                if(findViewById<RadioButton>(R.id.isNotSell).isChecked == true){
+                if (findViewById<RadioButton>(R.id.isNotSell).isChecked == true) {
                     isSellCheck = false
-                }else if(findViewById<RadioButton>(R.id.isSell).isChecked == true){
+                } else if (findViewById<RadioButton>(R.id.isSell).isChecked == true) {
                     isSellCheck = true
                 }
                 val updatedData = hashMapOf(
@@ -218,8 +252,19 @@ class PostActivity : AppCompatActivity() {
                             if (documentSnapshot.exists()) {
                                 // 문서가 이미 존재하는 경우, 업데이트 데이터를 사용하여 업데이트
                                 postRef.update(updatedData as Map<String, Any>)
-                                    .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully updated!") }
-                                    .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error updating document", e) }
+                                    .addOnSuccessListener {
+                                        Log.d(
+                                            ContentValues.TAG,
+                                            "DocumentSnapshot successfully updated!"
+                                        )
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w(
+                                            ContentValues.TAG,
+                                            "Error updating document",
+                                            e
+                                        )
+                                    }
                                 finish()
                             } else {
                                 // 문서가 존재하지 않는 경우, 에러 메시지 또는 다른 작업 수행

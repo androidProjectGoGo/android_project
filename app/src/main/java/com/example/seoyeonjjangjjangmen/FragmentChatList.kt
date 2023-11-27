@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+
 class FragmentChatList : Fragment(R.layout.fragment_chat_list) {
 
     private lateinit var chatListAdapter: ChatListAdapter
     private lateinit var recyclerView: RecyclerView
     private val chatlist = ArrayList<ChatListItem>()
-
 
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -45,8 +45,11 @@ class FragmentChatList : Fragment(R.layout.fragment_chat_list) {
     }
 
 
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_chat_list, container, false)
 
 
@@ -70,8 +73,6 @@ class FragmentChatList : Fragment(R.layout.fragment_chat_list) {
 
         return view
     }
-
-
 
 
     @SuppressLint("NotifyDataSetChanged")

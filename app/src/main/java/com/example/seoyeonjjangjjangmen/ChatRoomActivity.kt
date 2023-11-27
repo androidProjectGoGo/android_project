@@ -59,9 +59,11 @@ class ChatRoomActivity : AppCompatActivity() {
     }
 
 
-
-
-    private fun getChatMessages(currentEmail: String, sellerEmail: String, callback: (List<ChatItem>) -> Unit) {
+    private fun getChatMessages(
+        currentEmail: String,
+        sellerEmail: String,
+        callback: (List<ChatItem>) -> Unit
+    ) {
         val chatItems = mutableListOf<ChatItem>()
 
         db.collection("chats")

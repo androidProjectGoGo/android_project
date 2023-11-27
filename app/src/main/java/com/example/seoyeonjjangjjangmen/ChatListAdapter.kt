@@ -12,7 +12,7 @@ class ChatListAdapter(
     private val onItemClick: (ChatListItem) -> Unit
 ) : RecyclerView.Adapter<ChatListAdapter.ChatlistViewHolder>() {
 
-    fun setChatList(chats : List<ChatListItem>){
+    fun setChatList(chats: List<ChatListItem>) {
         chatlist = chats
         notifyDataSetChanged()
     }
@@ -23,7 +23,8 @@ class ChatListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatlistViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chat_list, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_chat_list, parent, false)
         return ChatlistViewHolder(view)
     }
 

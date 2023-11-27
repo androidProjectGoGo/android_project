@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatItemAdapter(private var chatItems: List<ChatItem>, private val currentUserEmail: String) : RecyclerView.Adapter<ChatItemAdapter.ChatItemViewHolder>() {
+class ChatItemAdapter(private var chatItems: List<ChatItem>, private val currentUserEmail: String) :
+    RecyclerView.Adapter<ChatItemAdapter.ChatItemViewHolder>() {
 
 
-    fun setChatItem(chatting : List<ChatItem>) {
+    fun setChatItem(chatting: List<ChatItem>) {
         chatItems = chatting
         notifyDataSetChanged()
     }
@@ -51,11 +52,11 @@ class ChatItemAdapter(private var chatItems: List<ChatItem>, private val current
     inner class ChatItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val contentTextView: TextView = itemView.findViewById(R.id.contentTextView)
-        // private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
+        //private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
 
         fun bind(chatItem: ChatItem) {
             contentTextView.text = chatItem.content
-            // timeTextView.text = chatItem.time
+            //timeTextView.text = chatItem.time
         }
     }
 }
