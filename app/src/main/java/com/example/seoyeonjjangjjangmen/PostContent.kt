@@ -22,16 +22,6 @@ import com.google.firebase.ktx.Firebase
 class PostContent : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var chatStartBtn: Button
-    fun goToChatRoom(chatRoom: ChatRoom, userID: String?) {
-
-
-        var intent = Intent(this, ChatRoomActivity::class.java)
-        intent.putExtra("ChatRoom", chatRoom)
-        intent.putExtra("userID", userID)
-        intent.putExtra("ChatRoomKey", "")
-        startActivity(intent)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.postcontent)
