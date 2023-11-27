@@ -1,5 +1,6 @@
 package com.example.seoyeonjjangjjangmen
 
+import ChatListItem
 import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -55,7 +56,9 @@ class SigninActivity : AppCompatActivity() {
 
                         //postlist 화면 전환
                         if (user != null) {
-                            val intent = Intent(this, PostListActivity::class.java)
+                            //val intent = Intent(this, PostListActivity::class.java)
+                            val intent = Intent(this, ChatListItem::class.java)
+
                             startActivity(intent)
                         } else {
                         }

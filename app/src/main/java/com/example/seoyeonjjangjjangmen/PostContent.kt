@@ -65,7 +65,7 @@ class PostContent : AppCompatActivity() {
 
             var myUid = FirebaseAuth.getInstance().uid // 내 Uid
             var database = FirebaseDatabase.getInstance().getReference("ChatRoom") // 넣을 database
-            var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
+            //var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
         }
 //        chatStartBtn.setOnClickListener{
 //

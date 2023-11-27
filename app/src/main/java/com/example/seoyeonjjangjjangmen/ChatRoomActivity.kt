@@ -1,140 +1,100 @@
 package com.example.seoyeonjjangjjangmen
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Build
+import ChatItem
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.seoyeonjjangjjangmen.DBKey.Companion.DB_CHATS
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.auth.User
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.TimeZone
-import com.example.seoyeonjjangjjangmen.databinding.ChatRoomBinding
+import com.google.firebase.database.database
 
-
-@RequiresApi(Build.VERSION_CODES.O)
 class ChatRoomActivity : AppCompatActivity() {
-    lateinit var binding: ChatRoomBinding // ??? 클래스 Missing ???
-    lateinit var btn_exit: ImageButton
-    lateinit var btn_submit: Button
-    lateinit var txt_title: TextView
-    lateinit var edt_message: EditText
-    lateinit var firebaseDatabase: DatabaseReference
-    lateinit var recycler_talks: RecyclerView
-    lateinit var chatRoom: ChatRoom
-    lateinit var opponentUser: User
-    lateinit var chatRoomKey: String
-    lateinit var myUid: String
+
+    // FirebaseAuth 인스턴스를 지연 초기화로 생성
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
+
+    // Firebase Realtime Database에 대한 참조 변수
+    private var chatDB: DatabaseReference? = null
+
+    // 채팅 아이템을 담을 리스트 및 어댑터
+    private val chatList = mutableListOf<ChatItem>()
+    private val adapter = ChatItemAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ChatRoomBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        initializeProperty()
-        initializeView()
-        initializeListener()
-        setupChatRooms()
-    }
+        setContentView(R.layout.chat_room)
 
-    fun initializeProperty() {  //변수 초기화
-        myUid = FirebaseAuth.getInstance().currentUser?.uid!!              //현재 로그인한 유저 id
-        firebaseDatabase = FirebaseDatabase.getInstance().reference!!
+        // Intent로부터 채팅 키 가져오기
+        val foreignkey = intent.getLongExtra("chatKey", -1)
+        Log.d("ChatRoomActivity", "chatKey = $foreignkey")
 
-        chatRoom = (intent.getSerializableExtra("ChatRoom")) as ChatRoom      //채팅방 정보
-        chatRoomKey = intent.getStringExtra("ChatRoomKey")!!            //채팅방 키
-        opponentUser = (intent.getSerializableExtra("Opponent")) as User    //상대방 유저 정보
-    }
+        // RecyclerView에 어댑터 및 레이아웃 매니저 설정
+        findViewById<RecyclerView>(R.id.chatRecyclerView).adapter = adapter
+        findViewById<RecyclerView>(R.id.chatRecyclerView).layoutManager = LinearLayoutManager(this)
 
-    @SuppressLint("RestrictedApi")
-    fun initializeView() {    //뷰 초기화
-        btn_exit = binding.imgbtnQuit
-        edt_message = binding.edtMessage
-        recycler_talks = binding.recyclerMessages
-        btn_submit = binding.btnSubmit
-        txt_title = binding.txtTItle
-        txt_title.text = opponentUser!!.uid ?: "" // uid or name
-    }
+        // Firebase Realtime Database의 특정 채팅 키에 대한 참조 설정
+        chatDB = Firebase.database.reference.child(DB_CHATS).child("$foreignkey")
 
-    fun initializeListener() {   //버튼 클릭 시 리스너 초기화
-        btn_exit.setOnClickListener()
-        {
-            startActivity(Intent(this@ChatRoomActivity, MainActivity::class.java))
-        }
-        btn_submit.setOnClickListener()
-        {
-            putMessage()
-        }
-    }
+        // 채팅 데이터의 변화를 감지하는 ChildEventListener 설정
+        chatDB!!.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                // 데이터베이스에 추가된 채팅 아이템을 가져와 리스트에 추가
+                val chatItem = snapshot.getValue(ChatItem::class.java)
+                chatItem ?: return
+                Log.d("ChatRoomActivity", "${chatItem.message}, ${chatItem.senderId}")
+                chatList.add(chatItem)
 
-    fun setupChatRooms() {              //채팅방 목록 초기화 및 표시
-        if (chatRoomKey.isNullOrBlank())
-            setupChatRoomKey()
-        else
-            setupRecycler()
-    }
+                // 어댑터에 리스트 제출 및 데이터 변경 알림
+                adapter.submitList(chatList)
+                adapter.notifyDataSetChanged()
+            }
 
-    @SuppressLint("RestrictedApi")
-    fun setupChatRoomKey() {            //chatRoomKey 없을 경우 초기화 후 목록 초기화
-        FirebaseDatabase.getInstance().getReference("ChatRoom")
-            .child("chatRooms").orderByChild("users/${opponentUser.uid}").equalTo(true)    //상대방의 Uid가 포함된 목록이 있는지 확인
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {}
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (data in snapshot.children) {
-                        chatRoomKey = data.key!!          //chatRoomKey 초기화
-                        setupRecycler()                  //목록 업데이트
-                        break
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        // 전송 버튼 클릭 시 동작
+        findViewById<Button>(R.id.sendButton).setOnClickListener {
+            // 현재 사용자의 UID와 입력된 메시지를 이용하여 ChatItem 객체 생성
+            val chatItem = ChatItem(
+                senderId = auth.currentUser!!.uid,
+                message = findViewById<EditText>(R.id.messageEditText).text.toString()
+            )
+
+//            // 채팅 데이터베이스에 새로운 채팅 아이템 추가
+//            chatDB!!.push().setValue(chatItem)
+
+            // 채팅 데이터베이스에 새로운 채팅 아이템 추가
+            chatDB!!.push().setValue(chatItem)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+
+                        findViewById<EditText>(R.id.messageEditText).setText("") //보낸 후 입력창을 초기화 시킴
+                        //마지막으로 보낸 문자가 chatRoom의 제목 아래에 표시되어야함
+
+
+                    } else {
+                        // setValue 작업이 실패한 경우 처리
+                        // 예를 들어, 사용자에게 알림을 표시할 수 있습니다.
                     }
                 }
-            })
-    }
-
-    fun putMessage() {       //메시지 전송
-        try {
-            var message = Message(myUid, getDateTimeString(), edt_message.text.toString())    //메시지 정보 초기화
-            Log.i("ChatRoomKey", chatRoomKey)
-            FirebaseDatabase.getInstance().getReference("ChatRoom").child("chatRooms")
-                .child(chatRoomKey).child("messages")                   //현재 채팅방에 메시지 추가
-                .push().setValue(message).addOnSuccessListener {
-                    Log.i("putMessage", "메시지 전송에 성공하였습니다.")
-                    edt_message.text.clear()
-                }.addOnCanceledListener {
-                    Log.i("putMessage", "메시지 전송에 실패하였습니다")
-                }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.i("putMessage", "메시지 전송 중 오류가 발생하였습니다.")
         }
-    }
-
-    fun getDateTimeString(): String {          //메시지 보낸 시각 정보 반환
-        try {
-            var localDateTime = LocalDateTime.now()
-            localDateTime.atZone(TimeZone.getDefault().toZoneId())
-            var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            return localDateTime.format(dateTimeFormatter).toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw Exception("getTimeError")
-        }
-    }
-
-    fun setupRecycler() {            //목록 초기화 및 업데이트
-        recycler_talks.layoutManager = LinearLayoutManager(this)
-        recycler_talks.adapter = RecyclerMessagesAdapter(this, chatRoomKey, opponentUser.uid)
     }
 }
