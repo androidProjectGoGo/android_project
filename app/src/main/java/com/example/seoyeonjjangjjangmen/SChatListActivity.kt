@@ -14,10 +14,10 @@ import com.google.firebase.ktx.Firebase
 class SChatListActivity : AppCompatActivity() {
     lateinit var adapter: ArrayAdapter<String>
     lateinit var listView: ListView
-    lateinit var userID:String
+    var userID ="android"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.s_chatroom)
+        setContentView(R.layout.s_chat_list)
         listView = findViewById(R.id.listView)
 
         val db = Firebase.firestore
@@ -29,26 +29,26 @@ class SChatListActivity : AppCompatActivity() {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         listView.adapter = adapter
 
-
-        // Firestore에서 userID 가져오기
-        if (uid != null) {
-            val docRef = db.collection("userToken").document(uid)
-            docRef.get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val data = documentSnapshot.data
-                        if (data != null) {
-                            userID = data["userID"] as String
-                            fetchChatList(userID)
-                        }
-                    } else {
-                        println("문서가 존재하지 않습니다.")
-                    }
-                }
-                .addOnFailureListener { e ->
-                    println("문서 가져오기 실패: $e")
-                }
-        }
+        fetchChatList(userID)
+//        // Firestore에서 userID 가져오기
+//        if (uid != null) {
+//            val docRef = db.collection("userToken").document(uid)
+//            docRef.get()
+//                .addOnSuccessListener { documentSnapshot ->
+//                    if (documentSnapshot.exists()) {
+//                        val data = documentSnapshot.data
+//                        if (data != null) {
+//                            userID = data["userID"] as String
+//                            fetchChatList(userID)
+//                        }
+//                    } else {
+//                        println("문서가 존재하지 않습니다.")
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    println("문서 가져오기 실패: $e")
+//                }
+//        }
 
     }
     private fun fetchChatList(userId: String) {
@@ -74,12 +74,10 @@ class SChatListActivity : AppCompatActivity() {
 
         for (chatRoomId in chatRoomIds) {
             val userIds = chatRoomId.split(userID) // 예시로 "androidhansung"일 때
-            val otherUserId = if (userIds.size == 2) {
-                val otherUser = userIds.firstOrNull { it != userID }
-                otherUser ?: continue
-            } else {
-                continue
-            }
+            println("userIds"+userIds)
+            val otherUserId = if (userIds[0].isNotEmpty()) userIds[0] else userIds[1]
+
+            println("otherUserId: $otherUserId")
 
             userList.add(otherUserId)
         }
