@@ -1,100 +1,115 @@
 package com.example.seoyeonjjangjjangmen
 
-import ChatItem
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.seoyeonjjangjjangmen.DBKey.Companion.DB_CHATS
-import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.database
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ChatRoomActivity : AppCompatActivity() {
 
-    // FirebaseAuth 인스턴스를 지연 초기화로 생성
-    private val auth: FirebaseAuth by lazy {
-        Firebase.auth
-    }
+    private lateinit var chatItemAdapter: ChatItemAdapter
+    private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
 
-    // Firebase Realtime Database에 대한 참조 변수
-    private var chatDB: DatabaseReference? = null
-
-    // 채팅 아이템을 담을 리스트 및 어댑터
-    private val chatList = mutableListOf<ChatItem>()
-    private val adapter = ChatItemAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.chat_room)
+        setContentView(R.layout.activity_chatroom)
 
-        // Intent로부터 채팅 키 가져오기
-        val foreignkey = intent.getLongExtra("chatKey", -1)
-        Log.d("ChatRoomActivity", "chatKey = $foreignkey")
-
-        // RecyclerView에 어댑터 및 레이아웃 매니저 설정
-        findViewById<RecyclerView>(R.id.chatRecyclerView).adapter = adapter
-        findViewById<RecyclerView>(R.id.chatRecyclerView).layoutManager = LinearLayoutManager(this)
-
-        // Firebase Realtime Database의 특정 채팅 키에 대한 참조 설정
-        chatDB = Firebase.database.reference.child(DB_CHATS).child("$foreignkey")
-
-        // 채팅 데이터의 변화를 감지하는 ChildEventListener 설정
-        chatDB!!.addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                // 데이터베이스에 추가된 채팅 아이템을 가져와 리스트에 추가
-                val chatItem = snapshot.getValue(ChatItem::class.java)
-                chatItem ?: return
-                Log.d("ChatRoomActivity", "${chatItem.message}, ${chatItem.senderId}")
-                chatList.add(chatItem)
-
-                // 어댑터에 리스트 제출 및 데이터 변경 알림
-                adapter.submitList(chatList)
-                adapter.notifyDataSetChanged()
-            }
-
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-
-            override fun onChildRemoved(snapshot: DataSnapshot) {}
-
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-
-        // 전송 버튼 클릭 시 동작
-        findViewById<Button>(R.id.sendButton).setOnClickListener {
-            // 현재 사용자의 UID와 입력된 메시지를 이용하여 ChatItem 객체 생성
-            val chatItem = ChatItem(
-                senderId = auth.currentUser!!.uid,
-                message = findViewById<EditText>(R.id.messageEditText).text.toString()
-            )
-
-//            // 채팅 데이터베이스에 새로운 채팅 아이템 추가
-//            chatDB!!.push().setValue(chatItem)
-
-            // 채팅 데이터베이스에 새로운 채팅 아이템 추가
-            chatDB!!.push().setValue(chatItem)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-
-                        findViewById<EditText>(R.id.messageEditText).setText("") //보낸 후 입력창을 초기화 시킴
-                        //마지막으로 보낸 문자가 chatRoom의 제목 아래에 표시되어야함
+        val currentEmail = intent.getStringExtra("currentEmail").toString()
+        val sellerEmail = intent.getStringExtra("sellerEmail").toString()
 
 
-                    } else {
-                        // setValue 작업이 실패한 경우 처리
-                        // 예를 들어, 사용자에게 알림을 표시할 수 있습니다.
-                    }
-                }
+        val buyer = findViewById<TextView>(R.id.txt_Title)
+        buyer.text = sellerEmail
+
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance() // 초기화
+
+
+        val recyclerView = findViewById<RecyclerView>(R.id.chatting_recyclerView)
+        chatItemAdapter = ChatItemAdapter(emptyList(), currentEmail) // Initially, an empty list
+        recyclerView.adapter = chatItemAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        getChatMessages(currentEmail, sellerEmail) { chatItems ->
+            chatItemAdapter.setChatItem(chatItems)
+            recyclerView.scrollToPosition(chatItems.size - 1)
         }
+
+
+        val sendButton = findViewById<Button>(R.id.sendButton)
+        val messageInput = findViewById<EditText>(R.id.messageInput)
+
+
+        sendButton.setOnClickListener {
+            val message = messageInput.text.toString().trim()
+            if (message.isNotEmpty()) {
+                sendChatMessage(sellerEmail, message, sellerEmail)
+                messageInput.text.clear()
+            }
+        }
+    }
+
+
+
+
+    private fun getChatMessages(currentEmail: String, sellerEmail: String, callback: (List<ChatItem>) -> Unit) {
+        val chatItems = mutableListOf<ChatItem>()
+
+        db.collection("chats")
+            .document(currentEmail)
+            .collection("buyer")
+            .document(sellerEmail)
+            .collection("messages")
+            .orderBy("time")
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.e("ChatRoomActivity", "Listen failed.", exception)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    chatItems.clear()
+                    for (document in snapshot) {
+                        val sender = document.getString("sender")
+                        val content = document.getString("content")
+                        val timestamp = document.getString("time")
+                        val chatting = ChatItem(sender, content, timestamp)
+                        chatItems.add(chatting)
+                    }
+                    callback(chatItems)
+                }
+            }
+    }
+
+
+    private fun sendChatMessage(email: String, message: String, sellerEmail: String) {
+        val sender = auth.currentUser?.email.toString()
+        val timestamp = Timestamp.now().toDate().toString()
+        val chatMessage = ChatItem(sender, message, timestamp)
+
+        val chatsCollection = db.collection("chats")
+        val senderCollection = chatsCollection.document(sender).collection("buyer")
+        val messagesCollection = senderCollection.document(sellerEmail).collection("messages")
+
+        val receiverCollection = chatsCollection.document(sellerEmail).collection("buyer")
+        val messagesCollection2 = receiverCollection.document(sender).collection("messages")
+
+        messagesCollection.add(chatMessage)
+        messagesCollection2.add(chatMessage)
+
+        val sellerCollection = db.collection("chats").document(sellerEmail).collection("buyer")
+        val chatData = hashMapOf(
+            "email" to sender
+        )
+        sellerCollection.document(sender).set(chatData)
     }
 }

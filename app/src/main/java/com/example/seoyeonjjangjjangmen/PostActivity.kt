@@ -191,6 +191,7 @@ class PostActivity : AppCompatActivity() {
 
             //upddate로 글 수정하기
             postBtn.setOnClickListener{
+
                 val title = findViewById<EditText>(R.id.title).text.toString()
                 val content = findViewById<EditText>(R.id.content).text.toString()
                 val price = seekBar.progress// 여기에서 price 값을 설정 (예: seekBar.progress)

@@ -60,11 +60,34 @@ class PostContent : AppCompatActivity() {
 
 
         chatStartBtn.setOnClickListener{
+            /*
             val intent = Intent(this,ChatRoomActivity::class.java)
             startActivity(intent)
 
             var myUid = FirebaseAuth.getInstance().uid // 내 Uid
             var database = FirebaseDatabase.getInstance().getReference("ChatRoom") // 넣을 database
+            */
+
+
+
+            // ----- 제발 됐으면 좋겠다 람쥐 ----- //
+            val intent = Intent(this, ChatRoomActivity::class.java)
+            intent.putExtra("sellerID", userID)
+            intent.putExtra("currentEmail", auth.currentUser?.email.toString())
+
+            val buyerCollection = db.collection("chats").document(auth.currentUser?.email.toString()).collection("buyer")
+            val chatData = hashMapOf(
+                "email" to userID
+            )
+            buyerCollection.document(userID.toString()).set(chatData)
+                .addOnSuccessListener {
+                    startActivity(intent)
+                }
+
+
+
+
+
             //var chatRoom = ChatRoom(mapOf(myUid!! to true, userID!! to true), null) // 채팅방 정보 세팅
         }
 //        chatStartBtn.setOnClickListener{

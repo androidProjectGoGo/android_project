@@ -1,50 +1,61 @@
 package com.example.seoyeonjjangjjangmen
 
-import ChatItem
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.seoyeonjjangjjangmen.databinding.ChatItemBinding
 
-class ChatItemAdapter : ListAdapter<ChatItem, ChatItemAdapter.ViewHolder>(diffUtil) {
+class ChatItemAdapter(private var chatItems: List<ChatItem>, private val currentUserEmail: String) : RecyclerView.Adapter<ChatItemAdapter.ChatItemViewHolder>() {
 
-    // 뷰홀더 클래스
-    inner class ViewHolder(private val binding: ChatItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        // 데이터를 뷰에 바인딩하는 함수
-        fun bind(chatItem: ChatItem) {
-            binding.messageTextView.text = chatItem.message
-            binding.senderTextView.text = chatItem.senderId
-            Log.d("ChatItemAdapter", "${chatItem.message}, ${chatItem.senderId}")
-        }
-    }
-
-    // 뷰홀더 생성
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // ChatItemBinding을 사용하여 레이아웃을 inflate하고 뷰홀더를 생성
-        return ViewHolder(ChatItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-    }
-
-    // 뷰홀더에 데이터 바인딩
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // 현재 아이템을 뷰홀더에 바인딩
-        holder.bind(currentList[position])
-        Log.d("ChatItemAdapter", "current Item = ${currentList[position].message}, ${currentList[position].senderId}")
+    fun setChatItem(chatting : List<ChatItem>) {
+        chatItems = chatting
+        notifyDataSetChanged()
     }
 
     companion object {
-        // DiffUtil을 사용하여 아이템 비교
-        val diffUtil = object : DiffUtil.ItemCallback<ChatItem>() {
-            override fun areItemsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
-                return oldItem == newItem
-            }
+        private const val VIEW_TYPE_ME = 1
+        private const val VIEW_TYPE_OTHER = 2
+    }
 
-            override fun areContentsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
-                return oldItem == newItem
-            }
+    override fun getItemViewType(position: Int): Int {
+        return if (chatItems[position].sender == currentUserEmail) {
+            VIEW_TYPE_OTHER
+        } else {
+            VIEW_TYPE_ME
+        }
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatItemViewHolder {
+        return if (viewType == VIEW_TYPE_ME) {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_chat_left, parent, false)
+            ChatItemViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_chat_right, parent, false)
+            ChatItemViewHolder(view)
+        }
+    }
+
+
+    override fun onBindViewHolder(holder: ChatItemViewHolder, position: Int) {
+        holder.bind(chatItems[position])
+    }
+
+    override fun getItemCount() = chatItems.size
+
+
+    inner class ChatItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        private val contentTextView: TextView = itemView.findViewById(R.id.contentTextView)
+        // private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
+
+        fun bind(chatItem: ChatItem) {
+            contentTextView.text = chatItem.content
+            // timeTextView.text = chatItem.time
         }
     }
 }
