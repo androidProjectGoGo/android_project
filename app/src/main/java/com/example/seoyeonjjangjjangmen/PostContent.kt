@@ -68,6 +68,7 @@ class PostContent : AppCompatActivity() {
         }
 
         chatStartBtn.setOnClickListener{
+            Log.e("page", "SChat페이지 이동")
             var intent = Intent(this, SChatRoomActivity::class.java)
             intent.putExtra("userID", userID)
             startActivity(intent)

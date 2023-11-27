@@ -27,6 +27,7 @@
         <activity android:name=".PostContent"/>
         <activity android:name=".ChatRoomActivity"/>
         <activity android:name=".ChatRoom"/>
+        <activity android:name=".SChatRoomActivity"/>
     </application>
 
 </manifest>

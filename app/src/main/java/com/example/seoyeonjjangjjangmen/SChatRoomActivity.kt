@@ -2,19 +2,22 @@ package com.example.seoyeonjjangjjangmen
 
 import android.content.ContentValues
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.util.UUID
 
 
-class SChatRoomActivity : AppCompatActivity(){
-    var listView: ListView? = null
+class SChatRoomActivity  : AppCompatActivity() {
+    var listView = findViewById<ListView>(R.id.listView)
+    lateinit var adapter: ArrayAdapter<String>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.s_chat_list)
@@ -25,8 +28,14 @@ class SChatRoomActivity : AppCompatActivity(){
         val user = auth.currentUser
         val uid = user?.uid
         var userID = "ㅇㅇㅇ"
-        var chatRoomID :String
+        var chatRoomID ="x"
         var switchChatRoomID :String
+        var chatRoomDoc: DocumentReference
+        var switchChatRoomDoc: DocumentReference
+
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
+        listView.adapter = adapter
+
         // Firestore에서 userID 가져오기
         if (uid != null) {
             val docRef = db.collection("userToken").document(uid)
@@ -38,9 +47,9 @@ class SChatRoomActivity : AppCompatActivity(){
                             userID = data["userID"] as String
                             chatRoomID = userID+chatUserID
                             switchChatRoomID = chatUserID+userID
-                            if(chatRoomID != null){
-                                val chatRoomDoc = db.collection("chatRoomMessages").document(chatRoomID)
-                                val switchChatRoomDoc = db.collection("chatRoomMessages").document(switchChatRoomID)
+                            if(!chatRoomID.equals("x")){
+                                chatRoomDoc = db.collection("chatRoomMessages").document(chatRoomID)
+                                switchChatRoomDoc = db.collection("chatRoomMessages").document(switchChatRoomID)
                                 //chatRoomID가 이미 있을 때
                                 if(chatRoomDoc!=null || switchChatRoomDoc!=null){
                                     if(chatRoomDoc == null){
@@ -66,6 +75,20 @@ class SChatRoomActivity : AppCompatActivity(){
                 }
         }
 
+        var inputMessageEditText = findViewById<EditText>(R.id.inputMessageEditText)
+        var sendMessageBtn = findViewById<Button>(R.id.sendMessageBtn)
+        sendMessageBtn.setOnClickListener {
+            if (inputMessageEditText.text != null) {
+                var message = inputMessageEditText.text
+                if (!chatRoomID.equals("x")) {
+                    //메세지 데이터에 저장
+                    sendMessage(chatRoomID, message, userID)
+                    //메세지 ui 보여주기
+
+                }
+            }
+        }
+
     }
     //chatRoomID가 있을 때
     fun isChatRoomID(chatRoomID : String){
@@ -88,10 +111,13 @@ class SChatRoomActivity : AppCompatActivity(){
                     }
                 }
 
-                // 메시지를 ListView에 표시
-                val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, messages)
-                if (listView != null) {
-                    listView!!.adapter = adapter
+                adapter.clear()
+                adapter.addAll(messages)
+                adapter.notifyDataSetChanged()
+
+                // 스크롤을 가장 아래로 이동 (마지막 메시지가 보이도록 함)
+                listView.post {
+                    listView.setSelection(adapter.count - 1)
                 }
             }
     }
@@ -145,11 +171,16 @@ class SChatRoomActivity : AppCompatActivity(){
             }
     }
     //메세지 보냈을 때 firebase 함수
-    fun sendMessage(chatRoomID: String){
+    fun sendMessage(chatRoomID: String, message: Editable,userID: String){
         val timestamp = System.currentTimeMillis()
         val documentId = "m$timestamp"
         Firebase.firestore.collection("chatRoomMessages").document(chatRoomID).collection("m").document(documentId)
-            .set(userInfo)
+            .set(
+                hashMapOf(
+                    "sender" to userID,
+                    "message" to message
+                )
+            )
             .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully written!") }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error writing document", e) }
 
