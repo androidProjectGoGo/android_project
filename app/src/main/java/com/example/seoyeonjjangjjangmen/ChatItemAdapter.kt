@@ -9,7 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 class ChatItemAdapter(private var chatItems: List<ChatItem>, private val currentUserEmail: String) :
     RecyclerView.Adapter<ChatItemAdapter.ChatItemViewHolder>() {
 
+    private lateinit var recyclerView: RecyclerView
 
+    fun setRecyclerView(rv: RecyclerView) {
+        recyclerView = rv
+    }
     fun setChatItem(chatting: List<ChatItem>) {
         chatItems = chatting
         notifyDataSetChanged()

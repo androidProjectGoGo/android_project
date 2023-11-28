@@ -1,5 +1,6 @@
 package com.example.seoyeonjjangjjangmen
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -18,7 +19,6 @@ class ChatRoomActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatroom)
@@ -26,38 +26,39 @@ class ChatRoomActivity : AppCompatActivity() {
         val currentEmail = intent.getStringExtra("currentEmail").toString()
         val sellerEmail = intent.getStringExtra("sellerEmail").toString()
 
-
         val buyer = findViewById<TextView>(R.id.txt_Title)
         buyer.text = sellerEmail
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance() // 초기화
-
-
+        db = FirebaseFirestore.getInstance()
+        
+        //setRecyclerView 호출하는 부분
         val recyclerView = findViewById<RecyclerView>(R.id.chatting_recyclerView)
-        chatItemAdapter = ChatItemAdapter(emptyList(), currentEmail) // Initially, an empty list
+        chatItemAdapter = ChatItemAdapter(emptyList(), currentEmail)
+        chatItemAdapter.setRecyclerView(recyclerView)
         recyclerView.adapter = chatItemAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+
 
         getChatMessages(currentEmail, sellerEmail) { chatItems ->
             chatItemAdapter.setChatItem(chatItems)
             recyclerView.scrollToPosition(chatItems.size - 1)
         }
 
-
         val sendButton = findViewById<Button>(R.id.sendButton)
         val messageInput = findViewById<EditText>(R.id.messageInput)
-
 
         sendButton.setOnClickListener {
             val message = messageInput.text.toString().trim()
             if (message.isNotEmpty()) {
-                sendChatMessage(sellerEmail, message, sellerEmail)
+                sendChatMessage(currentEmail, message, sellerEmail)
                 messageInput.text.clear()
+
+                // 메시지 전송 후 RecyclerView를 맨 아래로 스크롤
+                recyclerView.scrollToPosition(chatItemAdapter.itemCount - 1)
             }
         }
     }
-
 
     private fun getChatMessages(
         currentEmail: String,
@@ -80,10 +81,10 @@ class ChatRoomActivity : AppCompatActivity() {
 
                 if (snapshot != null) {
                     chatItems.clear()
-                    for (document in snapshot) {
+                    for (document in snapshot.documents) {
                         val sender = document.getString("sender")
                         val content = document.getString("content")
-                        val timestamp = document.getString("time")
+                        val timestamp = document.getTimestamp("time")
                         val chatting = ChatItem(sender, content, timestamp)
                         chatItems.add(chatting)
                     }
@@ -92,26 +93,25 @@ class ChatRoomActivity : AppCompatActivity() {
             }
     }
 
-
-    private fun sendChatMessage(email: String, message: String, sellerEmail: String) {
+    private fun sendChatMessage(currentEmail: String, message: String, sellerEmail: String) {
         val sender = auth.currentUser?.email.toString()
-        val timestamp = Timestamp.now().toDate().toString()
+        val timestamp = Timestamp.now()
         val chatMessage = ChatItem(sender, message, timestamp)
 
         val chatsCollection = db.collection("chats")
-        val senderCollection = chatsCollection.document(sender).collection("buyer")
+        val senderCollection = chatsCollection.document(currentEmail).collection("buyer")
         val messagesCollection = senderCollection.document(sellerEmail).collection("messages")
 
         val receiverCollection = chatsCollection.document(sellerEmail).collection("buyer")
-        val messagesCollection2 = receiverCollection.document(sender).collection("messages")
+        val messagesCollection2 = receiverCollection.document(currentEmail).collection("messages")
 
         messagesCollection.add(chatMessage)
         messagesCollection2.add(chatMessage)
 
         val sellerCollection = db.collection("chats").document(sellerEmail).collection("buyer")
         val chatData = hashMapOf(
-            "email" to sender
+            "email" to currentEmail
         )
-        sellerCollection.document(sender).set(chatData)
+        sellerCollection.document(currentEmail).set(chatData)
     }
 }
