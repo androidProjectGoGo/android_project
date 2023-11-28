@@ -11,9 +11,14 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.tabs.TabItem
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.Tab
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -34,6 +39,9 @@ class PostListActivity : AppCompatActivity() {
         val priceBar = findViewById<SeekBar>(R.id.priceBar)
         val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
         val writeBtn = findViewById<Button>(R.id.writebutton)
+        val tabLayout = findViewById<TabLayout>(R.id.tab)
+        val chatListTab = findViewById<TabItem>(R.id.chatListTab)
+
 
         writeBtn.setOnClickListener {
             val intent = Intent(this, PostActivity::class.java)
@@ -41,6 +49,22 @@ class PostListActivity : AppCompatActivity() {
             Log.d("isNew", isMineCheck.toString())
             startActivity(intent)
         }
+
+        // TabLayout에 탭 선택 리스너 설정
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {// chatListTab이 선택되었을 때 ChatRoomActivity로 전환
+                if (tab?.position==1) {
+                    val intent = Intent(this@PostListActivity, PostContent::class.java)//chatlist로 바꿔야함
+                    Log.d("gogoChat", "gogoring")
+                    startActivity(intent)
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // 탭이 선택 해제될 때 처리
+            }
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+        })
 
         auth = Firebase.auth
         val currentUser = auth.currentUser
@@ -115,11 +139,18 @@ class PostListActivity : AppCompatActivity() {
         }
     }
 
-
+    private var listenerRegistration: ListenerRegistration? = null
     override fun onResume() {//다시 돌아왔을 때
         super.onResume()
         loadDataAndUpdateRecyclerView()
 
+    }
+    override fun onPause() {
+        super.onPause()
+        stopListeningForUpdates()
+    }
+    private fun stopListeningForUpdates() {
+        listenerRegistration?.remove()
     }
 
     private fun loadDataAndUpdateRecyclerView() {//recyclerview 데이터 업데이트
@@ -129,7 +160,6 @@ class PostListActivity : AppCompatActivity() {
             Log.e("PostlistActivity", "데이터 가져오기 실패")
         } else {
             val userID = currentUser.uid
-
             val docRef = db.collection("user")
             docRef.whereEqualTo("uid", userID)
                 .get()
