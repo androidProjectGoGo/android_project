@@ -55,10 +55,10 @@ class SigninActivity : AppCompatActivity() {
 
                         //postlist 화면 전환
                         if (user != null) {
-                            val intent = Intent(this, PostListActivity::class.java)
+                            //val intent = Intent(this, PostListActivity::class.java)
 
                             // 채팅 테스트 하기 위한 코드.
-                            //val intent = Intent(this, ChatRoomActivity::class.java)
+                            val intent = Intent(this, MainActivity::class.java)
 
                             startActivity(intent)
                         } else {
