@@ -63,7 +63,7 @@ class PostContent : AppCompatActivity() {
             val intent = Intent(this, ChatRoomActivity::class.java)
 
             // 여기부터 밑에 코드들 잘 맞추면 될듯???
-            intent.putExtra("sellerID", userID)
+            intent.putExtra("sellerEmail", userID)
             intent.putExtra("currentEmail", auth.currentUser?.email.toString())
 
             val buyerCollection =
