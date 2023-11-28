@@ -23,6 +23,7 @@ class ChatRoomActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatroom)
 
+        // ----- 여기 변수 두개도 바꿔서 맞춰야 할 듯 ----- //
         val currentEmail = intent.getStringExtra("currentEmail").toString()
         val sellerEmail = intent.getStringExtra("sellerEmail").toString()
 
