@@ -2,7 +2,6 @@ package com.example.seoyeonjjangjjangmen
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Button
 import android.widget.SeekBar
@@ -11,15 +10,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayout.Tab
-import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class PostListActivity : AppCompatActivity() {
@@ -28,6 +22,7 @@ class PostListActivity : AppCompatActivity() {
     val db = Firebase.firestore
     private var isMineCheck = true
     private lateinit var uid : String
+    private lateinit var userID : String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +35,7 @@ class PostListActivity : AppCompatActivity() {
         val priceValueTv = findViewById<TextView>(R.id.price_value_tv)
         val writeBtn = findViewById<Button>(R.id.writebutton)
         val tabLayout = findViewById<TabLayout>(R.id.tab)
-        val chatListTab = findViewById<TabItem>(R.id.chatListTab)
+
 
 
         writeBtn.setOnClickListener {
@@ -72,8 +67,7 @@ class PostListActivity : AppCompatActivity() {
         if (auth.currentUser == null) {
             Log.e("PostlistActivity", "데이터 가져오기 실패")
         } else {
-            val userID = currentUser!!.uid
-
+            userID = currentUser!!.uid
             val docRef = db.collection("user")//uid 전환
             docRef.whereEqualTo("uid", userID)
                 .get()
@@ -108,6 +102,7 @@ class PostListActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
+
     }
 
     private fun setupRecyclerView(userID: String) {//초기 설정
@@ -139,41 +134,22 @@ class PostListActivity : AppCompatActivity() {
         }
     }
 
-    private var listenerRegistration: ListenerRegistration? = null
+    override fun onBackPressed() {
+        super.onBackPressed()
+        setupRecyclerView(userID)
+        Log.d("onBack_update", "update")
+    }
     override fun onResume() {//다시 돌아왔을 때
         super.onResume()
-        loadDataAndUpdateRecyclerView()
-
+        setupRecyclerView(userID)
+        Log.d("resume_update", "update")
     }
     override fun onPause() {
         super.onPause()
         stopListeningForUpdates()
     }
     private fun stopListeningForUpdates() {
-        listenerRegistration?.remove()
-    }
 
-    private fun loadDataAndUpdateRecyclerView() {//recyclerview 데이터 업데이트
-        val currentUser = auth.currentUser
-
-        if (currentUser == null) {
-            Log.e("PostlistActivity", "데이터 가져오기 실패")
-        } else {
-            val userID = currentUser.uid
-            val docRef = db.collection("user")
-            docRef.whereEqualTo("uid", userID)
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        uid = document.id // 문서 이름 uid에 할당.
-                        Log.d("document", "uid: $uid")
-                        setupRecyclerView(userID)
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.w("document", "문서 조회 실패", exception)
-                }
-        }
     }
 
 }

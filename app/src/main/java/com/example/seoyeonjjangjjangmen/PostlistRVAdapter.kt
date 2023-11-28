@@ -125,11 +125,11 @@ class PostlistRVAdapter(val context: Context, var uid: String) : RecyclerView.Ad
 
             binding.itemMyPostTag.visibility = if (uid == postItem.userId) {
                 Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
+                View.VISIBLE
             } else {
-                Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
+                //Log.d("PostlistRVAdapter", "currentUser: $uid, postItem.userId: ${postItem.userId}")
                 View.GONE
             }
-
         }
     }
 }
