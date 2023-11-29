@@ -1,5 +1,7 @@
 package com.example.seoyeonjjangjjangmen
 
+import PostListActivity
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -20,15 +22,15 @@ class ChatRoomActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatroom)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-
+        val btn = findViewById<Button>(R.id.gotolist)
+        btn.setOnClickListener{
+            var intent = Intent(this, PostListActivity::class.java)
+            startActivity(intent)
+        }
         // ----- 여기 변수 두개도 바꿔서 맞춰야 할 듯 ----- //
         val currentEmail = intent.getStringExtra("currentEmail").toString()
         val sellerEmail = intent.getStringExtra("sellerEmail").toString()
