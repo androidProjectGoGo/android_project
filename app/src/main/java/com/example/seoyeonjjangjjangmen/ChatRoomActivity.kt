@@ -28,7 +28,7 @@ class ChatRoomActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chatroom)
         val btn = findViewById<Button>(R.id.gotolist)
         btn.setOnClickListener{
-            var intent = Intent(this, PostListActivity::class.java)
+            var intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
         // ----- 여기 변수 두개도 바꿔서 맞춰야 할 듯 ----- //
