@@ -1,5 +1,6 @@
 package com.example.seoyeonjjangjjangmen
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ class ChatListAdapter(
     private val onItemClick: (ChatListItem) -> Unit
 ) : RecyclerView.Adapter<ChatListAdapter.ChatlistViewHolder>() {
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setChatList(chats: List<ChatListItem>) {
         chatlist = chats
         notifyDataSetChanged()

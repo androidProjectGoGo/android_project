@@ -25,6 +25,9 @@ class FragmentChatList : Fragment(R.layout.fragment_chat_list) {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+
+    // ----- 아 뭔가 여기에 채팅 받은거 추가하면 받은 채팅도 보일 것 같은데... ----- //
+    @SuppressLint("NotifyDataSetChanged")
     private fun getChatList(callback: (List<ChatListItem>) -> Unit) {
         val chatList = mutableListOf<ChatListItem>()
         val email = auth.currentUser?.email.toString()
